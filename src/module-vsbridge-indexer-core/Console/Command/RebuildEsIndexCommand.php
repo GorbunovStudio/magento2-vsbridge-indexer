@@ -8,6 +8,7 @@ use Magento\Backend\App\Area\FrontNameResolver;
 use Magento\Framework\App\State;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Console\Cli;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -96,7 +97,7 @@ class RebuildEsIndexCommand extends Command
 Try using --help for more information.</comment>"
             );
 
-            return;
+            return Cli::RETURN_FAILURE;
         }
 
         $this->eventManager->dispatch(
@@ -117,5 +118,7 @@ Try using --help for more information.</comment>"
                 'allStores' => $allStores,
             ]
         );
+
+        return Cli::RETURN_SUCCESS;
     }
 }

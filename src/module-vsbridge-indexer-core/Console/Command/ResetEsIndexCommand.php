@@ -9,6 +9,7 @@ namespace Divante\VsbridgeIndexerCore\Console\Command;
 use Magento\Framework\App\ObjectManagerFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Indexer\IndexerInterface;
+use Magento\Framework\Console\Cli;
 use Magento\Indexer\Console\Command\AbstractIndexerCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,6 +48,8 @@ class ResetEsIndexCommand extends AbstractIndexerCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->invalidateIndices($output);
+
+        return Cli::RETURN_SUCCESS;
     }
 
     /**

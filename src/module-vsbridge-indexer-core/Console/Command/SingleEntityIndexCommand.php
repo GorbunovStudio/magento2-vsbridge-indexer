@@ -11,6 +11,7 @@ namespace Divante\VsbridgeIndexerCore\Console\Command;
 use Divante\VsbridgeIndexerCore\Indexer\StoreManager;
 use Magento\Framework\App\ObjectManagerFactory;
 use Magento\Framework\Indexer\IndexerInterface;
+use Magento\Framework\Console\Cli;
 use Magento\Indexer\Console\Command\AbstractIndexerCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -111,8 +112,12 @@ class SingleEntityIndexCommand extends AbstractIndexerCommand
                 "\nID: " . $id;
             $output->writeln("<info>Indexing... $message</info>");
             $indexer->reindexRow($id);
+
+            return Cli::RETURN_SUCCESS;
         } else {
             $output->writeln("<info>Index with code: $index hasn't been found. </info>");
+
+            return Cli::RETURN_FAILURE;
         }
     }
 
