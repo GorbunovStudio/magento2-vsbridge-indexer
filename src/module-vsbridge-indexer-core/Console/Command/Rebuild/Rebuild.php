@@ -140,7 +140,7 @@ class Rebuild
                 $resultTime = microtime(true) - $startTime;
 
                 $this->output->writeln(
-                    $indexer->getTitle() . ' index has been rebuilt successfully in ' . gmdate('H:i:s', $resultTime)
+                    $indexer->getTitle() . ' index has been rebuilt successfully in ' . gmdate('H:i:s', (int) $resultTime)
                 );
             } catch (LocalizedException $e) {
                 $this->output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
