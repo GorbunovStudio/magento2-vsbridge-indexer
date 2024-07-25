@@ -80,6 +80,16 @@ class InventoryConverter implements InventoryConverterInterface
             $inventory[StockItemInterface::BACKORDERS] = $this->stockConfiguration->getBackorders($storeId);
         }
 
+        if (!empty($inventory[StockItemInterface::USE_CONFIG_MANAGE_STOCK])) {
+            $inventory[StockItemInterface::MANAGE_STOCK] = $this->stockConfiguration->getManageStock($storeId);
+        }
+
+        if (isset($inventory[StockItemInterface::MANAGE_STOCK]) && isset($inventory[StockItemInterface::IS_IN_STOCK])) {
+           if (!boolval($inventory[StockItemInterface::MANAGE_STOCK])) {
+                $inventory[StockItemInterface::IS_IN_STOCK] = true;
+           }
+        }
+
         return $this->prepareStockData($inventory);
     }
 
