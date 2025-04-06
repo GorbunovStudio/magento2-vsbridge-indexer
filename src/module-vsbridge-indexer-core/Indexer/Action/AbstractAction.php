@@ -90,4 +90,9 @@ abstract class AbstractAction
     {
         return $this->indexerFactory->create(['typeName' => $this->typeName]);
     }
+
+    public function getTypeName(): string
+    {
+        return $this->typeName;
+    }
 }
