@@ -11,21 +11,13 @@ namespace Divante\VsbridgeIndexerCore\Cache;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 use Psr\Log\LoggerInterface;
+use Divante\VsbridgeIndexerCore\Service\CacheTagsResolver;
 
 /**
  * Class Processor
  */
 class Processor
 {
-    /**
-     * Mapping elastic type to cache tag used by vsf
-     * @var array
-     */
-    private $defaultCacheTags = [
-        'category' => 'C',
-        'product' => 'P',
-    ];
-
     /**
      * @var ConfigInterface
      */
@@ -37,19 +29,9 @@ class Processor
     private $logger;
 
     /**
-     * @var array
-     */
-    private $cacheTags;
-
-    /**
      * @var CurlFactory
      */
     private $curlFactory;
-
-    /**
-     * @var EventManager
-     */
-    private $eventManager;
 
     /**
      * Processor constructor.
@@ -62,10 +44,9 @@ class Processor
     public function __construct(
         CurlFactory $curlFactory,
         ConfigInterface $config,
-        EventManager $manager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        private CacheTagsResolver $cacheTagsResolver
     ) {
-        $this->eventManager = $manager;
         $this->curlFactory = $curlFactory;
         $this->logger = $logger;
         $this->config = $config;
@@ -84,7 +65,7 @@ class Processor
             if (!empty($entityIds)) {
                 $this->cleanCacheInBatches($storeId, $dataType, $entityIds);
             } else {
-                $cacheTags = $this->getCacheTags();
+                $cacheTags = $this->cacheTagsResolver->getCacheTags();
 
                 if (isset($cacheTags[$dataType])) {
                     $this->cleanCacheByTags($storeId, [$dataType]);
@@ -186,7 +167,7 @@ class Processor
     private function getCacheInvalidateUrl($storeId, $type, array $ids)
     {
         $fullUrl = $this->getInvalidateCacheUrl($storeId);
-        $params = $this->prepareTagsByDocIds($type, $ids);
+        $params = $this->cacheTagsResolver->getTagsList($type, $ids);
         $fullUrl .= $params;
 
         return $fullUrl;
@@ -201,50 +182,5 @@ class Processor
         $url .= sprintf('invalidate?key=%s&tag=', $this->config->getInvalidateCacheKey($storeId));
 
         return $url;
-    }
-
-    /**
-     * @param string $type
-     * @param array $ids
-     *
-     * @return string
-     */
-    public function prepareTagsByDocIds($type, array $ids)
-    {
-        $params = '';
-        $cacheTags = $this->getCacheTags();
-
-        if (isset($cacheTags[$type])) {
-            $cacheTag = $cacheTags[$type];
-            $count = count($ids);
-
-            foreach ($ids as $key => $id) {
-                $params .= $cacheTag . $id;
-
-                if ($key !== ($count - 1)) {
-                    $params .= ',';
-                }
-            }
-        }
-
-        return $params;
-    }
-
-    /**
-     * @return array
-     */
-    public function getCacheTags()
-    {
-        if (null === $this->cacheTags) {
-            $tagsDataObject = new \Magento\Framework\DataObject();
-            $tagsDataObject->setData('items', $this->defaultCacheTags);
-            $this->eventManager->dispatch(
-                'vsf_prepare_cache_tags',
-                ['cache_tags' => $tagsDataObject]
-            );
-            $this->cacheTags = $tagsDataObject->getData('items');
-        }
-
-        return $this->cacheTags;
     }
 }
