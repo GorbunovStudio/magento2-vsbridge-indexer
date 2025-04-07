@@ -6,7 +6,7 @@ namespace Divante\VsbridgeIndexerCore\Service;
 
 use Magento\Framework\Api\SearchCriteriaBuilderFactory;
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Catalog\Model\CategoryRepositoryInterface;
+use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\UrlRewrite\Model\ResourceModel\UrlRewriteCollectionFactory;
 
 use Divante\VsbridgeIndexerCore\Api\Cache\DataTypeInterface;
@@ -93,6 +93,7 @@ class CacheTagsResolver
                 break;
             case DataTypeInterface::TYPE_RUSH_ADDON:
             case DataTypeInterface::TYPE_STATISTIC_VALUE:
+            case DataTypeInterface::TYPE_SETTING:
                 foreach ($entityIds as $entityId) {
                     $tags[] = sprintf('%s_%s', $dataTypeTag, $entityId);
                 }
