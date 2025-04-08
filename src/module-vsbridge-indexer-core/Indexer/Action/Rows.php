@@ -45,9 +45,9 @@ class Rows extends AbstractAction
             $this->eventManager->dispatch(
                 EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,
                 [
-                    'storeId' => $storeId,
-                    'typeName' => $this->getTypeName(),
-                    'ids' => $ids,
+                    'store_id' => $storeId,
+                    'data_type' => $this->getTypeName(),
+                    'entity_ids' => $ids,
                 ]
             );
 

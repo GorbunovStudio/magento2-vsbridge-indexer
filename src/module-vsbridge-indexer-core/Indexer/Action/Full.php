@@ -78,9 +78,9 @@ class Full extends AbstractAction
         $this->eventManager->dispatch(
             EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,
             [
-                'storeId' => $storeId,
-                'typeName' => $this->getTypeName(),
-                'ids' => [],
+                'store_id' => $storeId,
+                'data_type' => $this->getTypeName(),
+                'entity_ids' => [],
             ]
         );
     }
