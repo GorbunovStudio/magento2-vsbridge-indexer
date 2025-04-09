@@ -11,7 +11,6 @@ namespace Divante\VsbridgeIndexerCore\Cache;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 use Psr\Log\LoggerInterface;
-use Divante\VsbridgeIndexerCore\Service\CacheTagsResolver;
 
 /**
  * Class Processor
