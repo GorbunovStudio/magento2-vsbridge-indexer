@@ -53,35 +53,30 @@ class Full extends AbstractAction
         $esVersion = $this->esVersionResolver->getVersion();
         $stores = $this->getStores();
 
-        if ($esVersion === ElasticsearchResolverInterface::DEFAULT_ES_VERSION) {
-            foreach ($stores as $store) {
-                $this->saveIndex($store);
+        foreach ($stores as $store) {
+            $storeId = (int)$store->getId();
+
+            if ($esVersion !== ElasticsearchResolverInterface::DEFAULT_ES_VERSION) {
+                $this->getIndexerHandler()->createIndex($store);
+            }
+            
+            $this->getIndexerHandler()->saveIndex(
+                $this->rebuild($storeId, []), 
+                $store
+            );
+            
+            if ($esVersion === ElasticsearchResolverInterface::DEFAULT_ES_VERSION) {
                 $this->getIndexerHandler()->cleanUpByTransactionKey($store);
             }
-        } else {
-            foreach ($stores as $store) {
-                $this->getIndexerHandler()->createIndex($store);
-                $this->saveIndex($store);
-            }
+
+            $this->eventManager->dispatch(
+                EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,
+                [
+                    'store_id' => $storeId,
+                    'data_type' => $this->getTypeName(),
+                    'entity_ids' => [],
+                ]
+            );
         }
-    }
-
-    private function saveIndex(StoreInterface $store)
-    {
-        $storeId = (int)$store->getId();
-
-        $this->getIndexerHandler()->saveIndex(
-            $this->rebuild($storeId, []), 
-            $store
-        );
-
-        $this->eventManager->dispatch(
-            EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,
-            [
-                'store_id' => $storeId,
-                'data_type' => $this->getTypeName(),
-                'entity_ids' => [],
-            ]
-        );
     }
 }

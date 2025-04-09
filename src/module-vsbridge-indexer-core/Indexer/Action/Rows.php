@@ -41,7 +41,9 @@ class Rows extends AbstractAction
                 $this->rebuild($storeId, $ids), 
                 $store
             );
-    
+
+            $this->getIndexerHandler()->cleanUpByTransactionKey($store, $ids);
+
             $this->eventManager->dispatch(
                 EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,
                 [
@@ -50,8 +52,6 @@ class Rows extends AbstractAction
                     'entity_ids' => $ids,
                 ]
             );
-
-            $this->getIndexerHandler()->cleanUpByTransactionKey($store, $ids);
         }
     }
 }
