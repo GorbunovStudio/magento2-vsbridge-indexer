@@ -8,7 +8,6 @@ use Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface;
 use Divante\VsbridgeIndexerCore\Indexer\GenericIndexerHandlerFactory;
 use Divante\VsbridgeIndexerCore\Api\EventInterface;
 use Magento\Framework\Event\ManagerInterface as EventManager;
-use Magento\Store\Api\Data\StoreInterface;
 
 /**
  * Full reindex action
