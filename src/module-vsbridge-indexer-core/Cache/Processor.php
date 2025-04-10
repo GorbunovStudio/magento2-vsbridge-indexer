@@ -11,6 +11,8 @@ namespace Divante\VsbridgeIndexerCore\Cache;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 use Psr\Log\LoggerInterface;
+use Laminas\Http\Request;
+use Laminas\Http\Response;
 
 /**
  * Class Processor
@@ -161,14 +163,14 @@ class Processor
         /** @var \Magento\Framework\HTTP\Adapter\Curl $curl */
         $curl = $this->curlFactory->create();
         $curl->setConfig($config);
-        $curl->write(\Zend_Http_Client::GET, $uri, '1.0');
+        $curl->write(Request::METHOD_GET, $uri, '1.0');
         $response = $curl->read();
 
         if ($response !== false && !empty($response)) {
-            $httpCode = \Zend_Http_Response::extractCode($response);
+            $httpCode = Response::fromString($response)->getStatusCode();
 
             if ($httpCode !== 200) {
-                $response = \Zend_Http_Response::extractBody($response);
+                $response = Response::fromString($response)->getBody();
                 $this->logger->error($response);
             }
         } else {
