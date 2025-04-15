@@ -188,7 +188,7 @@ class Processor
     private function getCacheInvalidateUrl($storeId, $type, array $ids)
     {
         $fullUrl = $this->getInvalidateCacheUrl($storeId);
-        $params = $this->prepareTagsByDocIds($type, $ids);
+        $params = $this->prepareTagsByDocIds($storeId, $type, $ids);
         $fullUrl .= $params;
 
         return $fullUrl;
@@ -206,12 +206,13 @@ class Processor
     }
 
     /**
+     * @param int $storeId
      * @param string $type
      * @param array $ids
      *
      * @return string
      */
-    public function prepareTagsByDocIds($type, array $ids)
+    public function prepareTagsByDocIds(int $storeId, string $type, array $ids)
     {
         $params = '';
         $cacheTags = $this->getCacheTags();
