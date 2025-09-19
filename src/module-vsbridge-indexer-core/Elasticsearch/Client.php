@@ -11,7 +11,7 @@ use Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface;
 class Client implements ClientInterface
 {
     /**
-     * @var \Elasticsearch\Client
+     * @var \Elastic\Elasticsearch\Client
      */
     private $client;
 
@@ -24,11 +24,11 @@ class Client implements ClientInterface
      * Client constructor.
      *
      * @param ElasticsearchResolverInterface $esVersionResolver
-     * @param \Elasticsearch\Client $client
+     * @param \Elastic\Elasticsearch\Client $client
      */
     public function __construct(
         ElasticsearchResolverInterface $esVersionResolver,
-        \Elasticsearch\Client $client
+        \Elastic\Elasticsearch\Client $client
     ) {
         $this->client = $client;
         $this->esVersionResolver = $esVersionResolver;
@@ -41,7 +41,15 @@ class Client implements ClientInterface
      */
     public function bulk(array $bulkParams)
     {
-        return $this->client->bulk($bulkParams);
+        $response = $this->client->bulk($bulkParams);
+
+        if ($response instanceof \Http\Promise\Promise) {
+            $response = $response->wait();
+        }
+
+        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
+            return $response->asArray();
+        }
     }
 
     /**
@@ -72,12 +80,20 @@ class Client implements ClientInterface
      */
     public function createIndex(string $indexName, array $indexSettings)
     {
-        $this->client->indices()->create(
+        $response = $this->client->indices()->create(
             [
                 'index' => $indexName,
                 'body'  => $indexSettings,
             ]
         );
+
+        if ($response instanceof \Http\Promise\Promise) {
+            $response = $response->wait();
+        }
+
+        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
+            return $response->asArray();
+        }
     }
 
 
@@ -88,7 +104,15 @@ class Client implements ClientInterface
      */
     public function getClustersHealth(): array
     {
-        return $this->client->cat()->health();
+         $response = $this->client->cat()->health();
+
+        if ($response instanceof \Http\Promise\Promise) {
+            $response = $response->wait();
+        }
+
+        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
+            return $response->asArray();
+        }
     }
 
     /**
@@ -102,7 +126,14 @@ class Client implements ClientInterface
 
         try {
             $indices = $this->client->indices()->getMapping(['index' => $indexAlias]);
-        } catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e) {
+            if ($indices instanceof \Http\Promise\Promise) {
+                $indices = $indices->wait();
+        }
+
+            if ($indices instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
+                return $indices->asArray();
+            }
+        } catch (\Elastic\Elasticsearch\Exception\MissingParameterException $e) {
         }
 
         return array_keys($indices);
@@ -115,7 +146,16 @@ class Client implements ClientInterface
      */
     public function getIndexSettings(string $indexName): array
     {
-        return $this->client->indices()->getSettings(['index' => $indexName]);
+        
+        $response = $this->client->indices()->getSettings(['index' => $indexName]);
+
+        if ($response instanceof \Http\Promise\Promise) {
+            $response = $response->wait();
+        }
+
+        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
+            return $response->asArray();
+        }
     }
 
     /**
@@ -151,7 +191,15 @@ class Client implements ClientInterface
      */
     public function indexExists(string $indexName)
     {
-        return $this->client->indices()->exists(['index' => $indexName]);
+        $response = $this->client->indices()->exists(['index' => $indexName]);
+
+        if ($response instanceof \Http\Promise\Promise) {
+            $response = $response->wait();
+        }
+
+        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
+            return $response->asBool();
+        }
     }
 
     /**
@@ -161,7 +209,15 @@ class Client implements ClientInterface
      */
     public function deleteIndex(string $indexName)
     {
-        return $this->client->indices()->delete(['index' => $indexName]);
+        $response = $this->client->indices()->delete(['index' => $indexName]);
+
+        if ($response instanceof \Http\Promise\Promise) {
+            $response = $response->wait();
+        }
+
+        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
+            return $response->asArray();
+        }
     }
 
     /**
