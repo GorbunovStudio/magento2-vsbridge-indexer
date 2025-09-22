@@ -110,9 +110,13 @@ class Client implements ClientInterface
             $response = $response->wait();
         }
 
-        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
-            return $response->asArray();
+        if (!($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch)) {
+            throw new \Elastic\Elasticsearch\Exception\ClientResponseException  (
+                'Unexpected response type: ' . (is_object($response) ? get_class($response) : gettype($response))
+            ); 
         }
+
+        return $response->asArray();
     }
 
     /**
@@ -133,7 +137,7 @@ class Client implements ClientInterface
             if ($indices instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
                 return $indices->asArray();
             }
-        } catch (\Elastic\Elasticsearch\Exception\MissingParameterException $e) {
+        } catch (\Elastic\Elasticsearch\Exception\ClientResponseException $e) {
         }
 
         return array_keys($indices);
@@ -153,9 +157,13 @@ class Client implements ClientInterface
             $response = $response->wait();
         }
 
-        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
-            return $response->asArray();
+        if (!($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch)) {
+            throw new \Elastic\Elasticsearch\Exception\ClientResponseException  (
+                'Unexpected response type: ' . (is_object($response) ? get_class($response) : gettype($response))
+            ); 
         }
+
+        return $response->asArray();
     }
 
     /**
