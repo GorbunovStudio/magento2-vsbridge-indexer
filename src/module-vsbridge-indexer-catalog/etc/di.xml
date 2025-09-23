@@ -9,8 +9,7 @@
     <preference for="Divante\VsbridgeIndexerCatalog\Api\LoadMediaGalleryInterface" type="Divante\VsbridgeIndexerCatalog\Model\Product\LoadMediaGallery"/>
     <preference for="Divante\VsbridgeIndexerCatalog\Api\LoadTierPricesInterface" type="Divante\VsbridgeIndexerCatalog\Model\Product\LoadTierPrices" />
     <preference for="Divante\VsbridgeIndexerCatalog\Model\SystemConfig\CategoryConfigInterface" type="Divante\VsbridgeIndexerCatalog\Model\SystemConfig\CategoryConfig"/>
-    <preference for="Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Product\CategorySelectBuilderInterface" type="Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Product\CategorySelectBuilder"/>
-
+    
     <type name="Divante\VsbridgeIndexerCatalog\Logger\CatalogIndexerLogger">
         <arguments>
             <argument name="name" xsi:type="string">vsbridgeCatalogIndexerLogger</argument>
