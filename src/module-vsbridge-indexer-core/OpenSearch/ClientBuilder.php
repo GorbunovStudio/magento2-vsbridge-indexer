@@ -6,7 +6,7 @@
  * @license   See LICENSE_DIVANTE.txt for license details.
  */
 
-namespace Divante\VsbridgeIndexerCore\Elasticsearch;
+namespace Divante\VsbridgeIndexerCore\OpenSearch;
 
 use Divante\VsbridgeIndexerCore\Api\Client\BuilderInterface;
 use OpenSearch\GuzzleClientFactory;

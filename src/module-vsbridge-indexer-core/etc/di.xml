@@ -9,9 +9,9 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Divante\VsbridgeIndexerCore\Api\BulkLoggerInterface" type="Divante\VsbridgeIndexerCore\Index\BulkLogger"/>
-    <preference for="Divante\VsbridgeIndexerCore\Api\Client\ClientInterface" type="Divante\VsbridgeIndexerCore\Elasticsearch\Client"/>
-    <preference for="Divante\VsbridgeIndexerCore\Api\Client\ConfigurationInterface" type="Divante\VsbridgeIndexerCore\Elasticsearch\ClientConfiguration"/>
-    <preference for="Divante\VsbridgeIndexerCore\Api\Client\BuilderInterface" type="Divante\VsbridgeIndexerCore\Elasticsearch\ClientBuilder"/>
+    <preference for="Divante\VsbridgeIndexerCore\Api\Client\ClientInterface" type="Divante\VsbridgeIndexerCore\OpenSearch\Client"/>
+    <preference for="Divante\VsbridgeIndexerCore\Api\Client\ConfigurationInterface" type="Divante\VsbridgeIndexerCore\OpenSearch\ClientConfiguration"/>
+    <preference for="Divante\VsbridgeIndexerCore\Api\Client\BuilderInterface" type="Divante\VsbridgeIndexerCore\OpenSearch\ClientBuilder"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\Index\DataProviderResolverInterface" type="Divante\VsbridgeIndexerCore\Index\DataProviderResolver" />
     <preference for="Divante\VsbridgeIndexerCore\Api\Index\TypeInterface" type="Divante\VsbridgeIndexerCore\Index\Type"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\Index\TransactionKeyInterface" type="Divante\VsbridgeIndexerCore\Index\TransactionKey"/>

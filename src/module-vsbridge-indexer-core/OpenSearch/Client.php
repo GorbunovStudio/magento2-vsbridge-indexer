@@ -1,6 +1,6 @@
 <?php
 
-namespace Divante\VsbridgeIndexerCore\Elasticsearch;
+namespace Divante\VsbridgeIndexerCore\OpenSearch;
 
 use Divante\VsbridgeIndexerCore\Api\Client\ClientInterface;
 use OpenSearch\Exception\NotFoundHttpException;

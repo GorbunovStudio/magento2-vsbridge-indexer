@@ -7,9 +7,9 @@ use Divante\VsbridgeIndexerCore\Api\IndexInterface;
 use Divante\VsbridgeIndexerCore\Index\MappingFactory;
 
 /**
- * Build one OpenSearch index per logical entity. Class name retained for extension compatibility.
+ * Build one OpenSearch index per logical entity.
  */
-class ConfigES6plusParser implements ConfigParserInterface
+class ConfigParser implements ConfigParserInterface
 {
     /**
      * Factory used to build mapping types.
