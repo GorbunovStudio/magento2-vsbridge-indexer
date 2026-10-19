@@ -2,6 +2,7 @@
     "name": "divante/magento2-vsbridge-indexer",
     "type": "magento2-component",
     "license": "MIT",
+    "version": "3.0.0",
     "keywords": [
         "magento",
         "magento2",
