@@ -12,7 +12,7 @@ use Divante\VsbridgeIndexerCore\Api\IndexOperationInterface;
 use Divante\VsbridgeIndexerCore\Api\Index\TypeInterface;
 use Divante\VsbridgeIndexerCore\Api\MappingInterface;
 use Divante\VsbridgeIndexerCore\Config\OptimizationSettings;
-use Divante\VsbridgeIndexerCore\Elasticsearch\ClientResolver;
+use Divante\VsbridgeIndexerCore\OpenSearch\ClientResolver;
 use Divante\VsbridgeIndexerCore\Exception\ConnectionUnhealthyException;
 use Divante\VsbridgeIndexerCore\Exception\ConfigurationNotFoundException;
 use Divante\VsbridgeIndexerCore\Exception\IndexNotExistException;
@@ -173,7 +173,6 @@ class IndexOperations implements IndexOperationInterface
             if ($mapping instanceof MappingInterface) {
                 $this->resolveClient($store->getId())->putMapping(
                     $index->getName(),
-                    $type->getName(),
                     $mapping->getMappingProperties()
                 );
             }
@@ -228,6 +227,7 @@ class IndexOperations implements IndexOperationInterface
         }
 
         $this->resolveClient($storeId)->updateAliases($aliasActions);
+        unset($this->indicesByIdentifier[$indexAlias]);
 
         foreach ($deletedIndices as $deletedIndex) {
             $this->resolveClient($storeId)->deleteIndex($deletedIndex);
@@ -315,51 +315,22 @@ class IndexOperations implements IndexOperationInterface
      */
     private function checkEsCondition($storeId)
     {
-        $clusterHealth = $this->resolveClient($storeId)->getClustersHealth();
-        $this->checkClustersHealth($clusterHealth);
-        $this->checkMaxBulkQueueRequirement($clusterHealth, $storeId);
-    }
-
-    /**
-     * Check if clusters are in green status
-     *
-     * @param $clusterHealth
-     *
-     * @return array|void
-     * @throws ConnectionUnhealthyException
-     */
-    private function checkClustersHealth($clusterHealth)
-    {
-        if ($this->optimizationSettings->checkClusterHealth()) {
-            if ($clusterHealth[0]['status'] !== self::GREEN_HEALTH_STATUS) {
-                $message = 'Can not execute bulk. Cluster health status is ' . $clusterHealth[0]['status'];
-                throw new ConnectionUnhealthyException(__($message));
-            }
+        if ($this->optimizationSettings->checkMaxBulkQueueRequirement()) {
+            throw new ConnectionUnhealthyException(__(
+                'The legacy queue check is unsupported with OpenSearch. Disable '
+                . 'vsbridge_indexer_settings/optimization_settings/max_bulk_queue_requirement.'
+            ));
         }
 
-        return $clusterHealth;
-    }
-
-    /**
-     * Check if pending tasks + batch indexer size (VueStorefrontIndexer indices setting)
-     * are lower than max bulk queue size master node
-     *
-     * @param array $clusterHealth
-     * @param $storeId
-     *
-     * @return void
-     * @throws ConnectionUnhealthyException
-     */
-    private function checkMaxBulkQueueRequirement(array $clusterHealth, $storeId)
-    {
-        if ($this->optimizationSettings->checkMaxBulkQueueRequirement()) {
-            $masterMaxQueueSize = $this->resolveClient($storeId)->getMasterMaxQueueSize();
-            if (
-                $masterMaxQueueSize &&
-                $clusterHealth[0]['pending_tasks'] + $this->getBatchIndexingSize() > $masterMaxQueueSize
-            ) {
-                $message = 'Can not execute bulk. Pending tasks and batch indexing size is greater than max queue size';
-                throw new ConnectionUnhealthyException(__($message));
+        if ($this->optimizationSettings->checkClusterHealth()) {
+            $clusterHealth = $this->resolveClient($storeId)->getClustersHealth();
+            if (!isset($clusterHealth[0]['status'])) {
+                throw new ConnectionUnhealthyException(__('OpenSearch returned an invalid cluster health response.'));
+            }
+            if ($clusterHealth[0]['status'] !== self::GREEN_HEALTH_STATUS) {
+                throw new ConnectionUnhealthyException(__(
+                    'Can not execute bulk. Cluster health status is %1', $clusterHealth[0]['status']
+                ));
             }
         }
     }

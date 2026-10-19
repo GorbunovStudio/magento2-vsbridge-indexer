@@ -36,7 +36,7 @@ class Type implements TypeInterface
      * @param $name
      * @param MappingInterface|null $mapping
      */
-    public function __construct($name, MappingInterface $mapping = null)
+    public function __construct($name, ?MappingInterface $mapping = null)
     {
         $this->name = $name;
         $this->mapping = $mapping;

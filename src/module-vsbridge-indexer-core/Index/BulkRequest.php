@@ -46,7 +46,6 @@ class BulkRequest implements BulkRequestInterface
         $this->bulkData[] = [
             'delete' => [
                 '_index' => $index,
-                '_type' => $type,
                 '_id' => $docId,
             ]
         ];
@@ -86,7 +85,6 @@ class BulkRequest implements BulkRequestInterface
         $this->bulkData[] = [
             'index' => [
                 '_index' => $index,
-                '_type' => $type,
                 '_id' => $docId,
             ]
         ];
