@@ -8,72 +8,40 @@
 
 namespace Divante\VsbridgeIndexerCore\Elasticsearch;
 
-use Divante\VsbridgeIndexerCore\Api\Client\BuilderInterface as ClientBuilderInterface;
+use Divante\VsbridgeIndexerCore\Api\Client\BuilderInterface;
+use OpenSearch\GuzzleClientFactory;
 
-/**
- * Class ClientBuilder
- */
-class ClientBuilder implements ClientBuilderInterface
+class ClientBuilder implements BuilderInterface
 {
-    /**
-     * @var array
-     */
-    private $defaultOptions = [
-        'host' => 'localhost',
-        'port' => '9200',
-        'enable_http_auth' => false,
-        'auth_user' => null,
-        'auth_pwd' => null,
-        'timeout' => 30,        // ten second timeout
-        'connect_timeout' => 30
-    ];
-
-    /**
-     * @inheritdoc
-     */
     public function build(array $options = [])
     {
-        $options = array_merge($this->defaultOptions, $options);
-        $esClientBuilder = \Elastic\Elasticsearch\ClientBuilder::create();
-        $host = $this->getHost($options);
+        $options = array_merge([
+            'host' => 'localhost',
+            'port' => '9200',
+            'scheme' => 'http',
+            'enable_http_auth' => false,
+            'auth_user' => null,
+            'auth_pwd' => null,
+            'timeout' => 30,
+            'connect_timeout' => 30,
+        ], $options);
 
-        if (!empty($host)) {
-            $esClientBuilder->setHosts($host['hosts']);
-        }
+        $scheme = array_key_exists('enable_https_mode', $options)
+            ? ($options['enable_https_mode'] ? 'https' : 'http')
+            : $options['scheme'];
 
-        if (!empty($options['enable_http_auth'])) {
-            $esClientBuilder->setBasicAuthentication($host['user'] ?? null, $host['password'] ?? null);
-        }
-
-        return $esClientBuilder->build();
-    }
-
-    /**
-     * Return hosts config used to connect to the cluster.
-     *
-     * @param array $options Client options.
-     *
-     * @return array
-     */
-    private function getHost(array $options)
-    {
-        $scheme = 'http';
-
-        if (isset($options['enable_https_mode'])) {
-            $scheme = 'https';
-        } elseif (isset($options['scheme'])) {
-            $scheme = $options['scheme'];
-        }
-
-        $currentHostConfig = [
-            'hosts' => [$scheme.  '://' . $options['host'] . ':' . $options['port']]
+        $httpOptions = [
+            'base_uri' => $scheme . '://' . $options['host'] . ':' . $options['port'],
+            'timeout' => $options['timeout'],
+            'connect_timeout' => $options['connect_timeout'],
+            'verify' => true,
         ];
 
-        if (!empty($options['enable_http_auth'])) {
-            $currentHostConfig['user'] = $options['auth_user'];
-            $currentHostConfig['pass'] = $options['auth_pwd'];
+        if ($options['enable_http_auth']) {
+            $httpOptions['auth'] = [$options['auth_user'], $options['auth_pwd']];
         }
 
-        return $currentHostConfig;
+        // Avoid replaying an entire bulk request after a partial or ambiguous failure.
+        return (new GuzzleClientFactory(0))->create($httpOptions);
     }
 }

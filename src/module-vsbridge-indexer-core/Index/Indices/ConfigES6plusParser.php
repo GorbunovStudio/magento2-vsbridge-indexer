@@ -7,7 +7,7 @@ use Divante\VsbridgeIndexerCore\Api\IndexInterface;
 use Divante\VsbridgeIndexerCore\Index\MappingFactory;
 
 /**
- * Parser configuration to much requirements for ES 6 plus version. We can have only one type in index.
+ * Build one OpenSearch index per logical entity. Class name retained for extension compatibility.
  */
 class ConfigES6plusParser implements ConfigParserInterface
 {

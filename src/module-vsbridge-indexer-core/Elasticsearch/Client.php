@@ -3,258 +3,107 @@
 namespace Divante\VsbridgeIndexerCore\Elasticsearch;
 
 use Divante\VsbridgeIndexerCore\Api\Client\ClientInterface;
-use Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface;
+use OpenSearch\Exception\NotFoundHttpException;
 
-/**
- * Class Client
- */
 class Client implements ClientInterface
 {
-    /**
-     * @var \Elastic\Elasticsearch\Client
-     */
     private $client;
 
-    /**
-     * @var ElasticsearchResolverInterface
-     */
-    private $esVersionResolver;
-
-    /**
-     * Client constructor.
-     *
-     * @param ElasticsearchResolverInterface $esVersionResolver
-     * @param \Elastic\Elasticsearch\Client $client
-     */
-    public function __construct(
-        ElasticsearchResolverInterface $esVersionResolver,
-        \Elastic\Elasticsearch\Client $client
-    ) {
+    public function __construct(\OpenSearch\Client $client)
+    {
         $this->client = $client;
-        $this->esVersionResolver = $esVersionResolver;
     }
 
-    /**
-     * @param array $bulkParams
-     *
-     * @return array
-     */
     public function bulk(array $bulkParams)
     {
-        $response = $this->client->bulk($bulkParams);
-
-        if ($response instanceof \Http\Promise\Promise) {
-            $response = $response->wait();
-        }
-
-        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
-            return $response->asArray();
-        }
+        return $this->asArray($this->client->bulk($bulkParams));
     }
 
-    /**
-     * @param string $indexName
-     * @param int|string $value
-     *
-     * @return void
-     */
     public function changeRefreshInterval(string $indexName, $value)
     {
-        $this->client->indices()->putSettings(['index' => $indexName, 'body' => ['refresh_interval' => $value]]);
+        $this->asArray($this->client->indices()->putSettings([
+            'index' => $indexName, 'body' => ['refresh_interval' => $value],
+        ]));
     }
 
-    /**
-     * @param string $indexName
-     * @param int $value
-     *
-     * @return void
-     */
     public function changeNumberOfReplicas(string $indexName, int $value)
     {
-        $this->client->indices()->putSettings(['index' => $indexName, 'body' => ['number_of_replicas' => $value]]);
+        $this->asArray($this->client->indices()->putSettings([
+            'index' => $indexName, 'body' => ['number_of_replicas' => $value],
+        ]));
     }
 
-    /**
-     * @param $indexName
-     * @param array $indexSettings
-     */
     public function createIndex(string $indexName, array $indexSettings)
     {
-        $response = $this->client->indices()->create(
-            [
-                'index' => $indexName,
-                'body'  => $indexSettings,
-            ]
-        );
-
-        if ($response instanceof \Http\Promise\Promise) {
-            $response = $response->wait();
-        }
-
-        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
-            return $response->asArray();
-        }
+        return $this->asArray($this->client->indices()->create([
+            'index' => $indexName, 'body' => $indexSettings,
+        ]));
     }
 
-
-    /**
-     * Retrieve information about cluster health
-     *
-     * @return array
-     */
     public function getClustersHealth(): array
     {
-         $response = $this->client->cat()->health();
-
-        if ($response instanceof \Http\Promise\Promise) {
-            $response = $response->wait();
-        }
-
-        if (!($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch)) {
-            throw new \Elastic\Elasticsearch\Exception\ClientResponseException  (
-                'Unexpected response type: ' . (is_object($response) ? get_class($response) : gettype($response))
-            ); 
-        }
-
-        return $response->asArray();
+        return $this->asArray($this->client->cat()->health(['format' => 'json']));
     }
 
-    /**
-     * @param string $indexAlias
-     *
-     * @return array
-     */
     public function getIndicesNameByAlias(string $indexAlias): array
     {
-        $indices = [];
-
         try {
-            $indices = $this->client->indices()->getMapping(['index' => $indexAlias]);
-            if ($indices instanceof \Http\Promise\Promise) {
-                $indices = $indices->wait();
+            return array_keys($this->asArray($this->client->indices()->getAlias(['name' => $indexAlias])));
+        } catch (NotFoundHttpException $exception) {
+            return [];
         }
-
-            if ($indices instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
-                return $indices->asArray();
-            }
-        } catch (\Elastic\Elasticsearch\Exception\ClientResponseException $e) {
-        }
-
-        return array_keys($indices);
     }
 
-    /**
-     * @param string $indexName
-     *
-     * @return array
-     */
     public function getIndexSettings(string $indexName): array
     {
-        
-        $response = $this->client->indices()->getSettings(['index' => $indexName]);
-
-        if ($response instanceof \Http\Promise\Promise) {
-            $response = $response->wait();
-        }
-
-        if (!($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch)) {
-            throw new \Elastic\Elasticsearch\Exception\ClientResponseException  (
-                'Unexpected response type: ' . (is_object($response) ? get_class($response) : gettype($response))
-            ); 
-        }
-
-        return $response->asArray();
+        return $this->asArray($this->client->indices()->getSettings(['index' => $indexName]));
     }
 
-    /**
-     * @return int
-     */
-    public function getMasterMaxQueueSize(): int
-    {
-        $master = $this->client->cat()->master();
-        $masterNode = $this->client->nodes()->info(['node_id' => $master[0]['id']]);
-        return $masterNode['nodes'][$master[0]['id']]['thread_pool']['search']['max_queue_size'] ?? 0;
-    }
-
-    /**
-     * @param array $aliasActions
-     */
     public function updateAliases(array $aliasActions)
     {
-        $this->client->indices()->updateAliases(['body' => ['actions' => $aliasActions]]);
+        $response = $this->asArray($this->client->indices()->updateAliases(['body' => ['actions' => $aliasActions]]));
+        if (empty($response['acknowledged'])) {
+            throw new \RuntimeException('OpenSearch did not acknowledge the alias update; old indexes were retained.');
+        }
     }
 
-    /**
-     * @param string $indexName
-     */
     public function refreshIndex(string $indexName)
     {
-        $this->client->indices()->refresh(['index' => $indexName]);
+        $response = $this->asArray($this->client->indices()->refresh(['index' => $indexName]));
+        if (!isset($response['_shards']['failed']) || $response['_shards']['failed'] > 0) {
+            throw new \RuntimeException('OpenSearch could not refresh all index shards.');
+        }
     }
 
-    /**
-     * @param string $indexName
-     *
-     * @return bool
-     */
     public function indexExists(string $indexName)
     {
-        $response = $this->client->indices()->exists(['index' => $indexName]);
-
-        if ($response instanceof \Http\Promise\Promise) {
-            $response = $response->wait();
-        }
-
-        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
-            return $response->asBool();
-        }
+        return $this->client->indices()->exists(['index' => $indexName]);
     }
 
-    /**
-     * @param string $indexName
-     *
-     * @return array
-     */
     public function deleteIndex(string $indexName)
     {
-        $response = $this->client->indices()->delete(['index' => $indexName]);
-
-        if ($response instanceof \Http\Promise\Promise) {
-            $response = $response->wait();
-        }
-
-        if ($response instanceof \Elastic\Elasticsearch\Response\Elasticsearch) {
-            return $response->asArray();
-        }
+        return $this->asArray($this->client->indices()->delete(['index' => $indexName]));
     }
 
-    /**
-     * @param string $indexName
-     * @param string $type
-     * @param array $mapping
-     */
-    public function putMapping(string $indexName, string $type, array $mapping)
+    public function putMapping(string $indexName, array $mapping)
     {
-        $requestPayload = [
-            'index' => $indexName,
-            'type'  => $type,
-            'body'  => [$type => $mapping]
-        ];
-
-        $esVersion = $this->esVersionResolver->getVersion();
-
-        if ($esVersion === ElasticsearchResolverInterface::ES_6_PLUS_VERSION) {
-            $requestPayload['include_type_name'] = true;
-        }
-
-        $this->client->indices()->putMapping($requestPayload);
+        $this->asArray($this->client->indices()->putMapping(['index' => $indexName, 'body' => $mapping]));
     }
 
-    /**
-     * @param array $params
-     */
     public function deleteByQuery(array $params)
     {
-        $this->client->deleteByQuery($params);
+        $response = $this->asArray($this->client->deleteByQuery($params));
+        if (!empty($response['failures']) || !empty($response['timed_out'])) {
+            throw new \RuntimeException('OpenSearch could not complete document cleanup.');
+        }
+    }
+
+    private function asArray($response): array
+    {
+        if (!is_array($response)) {
+            throw new \UnexpectedValueException('Expected an OpenSearch JSON response, received ' . get_debug_type($response));
+        }
+
+        return $response;
     }
 }

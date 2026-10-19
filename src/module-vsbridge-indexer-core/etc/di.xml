@@ -20,7 +20,6 @@
     <preference for="Divante\VsbridgeIndexerCore\Api\ConvertValueInterface" type="Divante\VsbridgeIndexerCore\Index\ConvertValue"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\IndexInterface" type="Divante\VsbridgeIndexerCore\Index\Index"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\IndexOperationInterface" type="Divante\VsbridgeIndexerCore\Index\IndexOperations"/>
-    <preference for="Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface" type="Divante\VsbridgeIndexerCore\Model\ElasticsearchResolver"/>
     <preference for="Divante\VsbridgeIndexerCore\System\GeneralConfigInterface" type="Divante\VsbridgeIndexerCore\System\GeneralConfig"/>
     <preference for="Divante\VsbridgeIndexerCore\Cache\ConfigInterface" type="Divante\VsbridgeIndexerCore\Cache\Config"/>
 
@@ -29,24 +28,6 @@
             <argument name="actions" xsi:type="array">
                 <item name="full" xsi:type="string">Divante\VsbridgeIndexerCore\Indexer\Action\Full</item>
                 <item name="rows" xsi:type="string">Divante\VsbridgeIndexerCore\Indexer\Action\Rows</item>
-            </argument>
-        </arguments>
-    </type>
-
-    <type name="Divante\VsbridgeIndexerCore\Model\Adminhtml\System\Config\Source\Version">
-        <arguments>
-            <argument name="engines" xsi:type="array">
-                <item xsi:type="string" name="elasticsearch5">Elasticsearch5</item>
-                <item xsi:type="string" name="elasticsearch6plus">Elasticsearch6+</item>
-            </argument>
-        </arguments>
-    </type>
-
-    <type name="Divante\VsbridgeIndexerCore\Index\Indices\ConfigResolver">
-        <arguments>
-            <argument name="configParsers" xsi:type="array">
-                <item name="elasticsearch5" xsi:type="string">Divante\VsbridgeIndexerCore\Index\Indices\ConfigES5Parser</item>
-                <item name="elasticsearch6plus" xsi:type="string">Divante\VsbridgeIndexerCore\Index\Indices\ConfigES6plusParser</item>
             </argument>
         </arguments>
     </type>
