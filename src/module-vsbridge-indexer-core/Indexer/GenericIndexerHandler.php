@@ -36,7 +36,7 @@ class GenericIndexerHandler
     /**
      * @var string
      */
-    private $typeName;
+    private $entityName;
 
     /**
      * @var IndexerLogger
@@ -66,7 +66,7 @@ class GenericIndexerHandler
      * @param IndexOperationInterface $indexOperations
      * @param Batch $batch
      * @param TransactionKeyInterface $transactionKey
-     * @param string $typeName
+     * @param string $entityName
      */
     public function __construct(
         DataProviderResolverInterface $dataProviderResolver,
@@ -75,19 +75,19 @@ class GenericIndexerHandler
         IndexOperationInterface $indexOperations,
         Batch $batch,
         TransactionKeyInterface $transactionKey,
-        string $typeName
+        string $entityName
     ) {
         $this->dataProviderResolver = $dataProviderResolver;
         $this->bulkLogger = $bulkLogger;
         $this->batch = $batch;
         $this->indexOperations = $indexOperations;
-        $this->typeName = $typeName;
+        $this->entityName = $entityName;
         $this->indexerLogger = $indexerLogger;
         $this->transactionKey = $transactionKey;
     }
 
     /**
-     * Save documents in ES
+     * Save documents in OpenSearch
      *
      * @param Traversable $documents
      * @param StoreInterface $store
@@ -112,7 +112,6 @@ class GenericIndexerHandler
                 if (!empty($docs)) {
                     $bulkRequest = $this->indexOperations->createBulk()->addDocuments(
                         $index->getName(),
-                        $this->typeName,
                         $docs
                     );
 
@@ -148,7 +147,7 @@ class GenericIndexerHandler
                 $this->indexOperations->switchIndexer($store->getId(), $index->getName(), $index->getAlias());
             }
         } catch (ConnectionDisabledException $exception) {
-            // do nothing, ES indexer disabled in configuration
+            // Indexer disabled in configuration.
         } catch (ConnectionUnhealthyException $exception) {
             $this->indexerLogger->error($exception->getMessage());
             throw $exception;
@@ -156,7 +155,7 @@ class GenericIndexerHandler
     }
 
     /**
-     * Removed unnecessary documents in ES by transaction key
+     * Remove stale documents in OpenSearch by transaction key
      *
      * @param StoreInterface $store
      * @param array $docIds
@@ -166,10 +165,10 @@ class GenericIndexerHandler
     public function cleanUpByTransactionKey(StoreInterface $store, ?array $docIds = null)
     {
         try {
-            $indexAlias = $this->indexOperations->getIndexAlias($this->getIdentifier(), $store);
+            $indexAlias = $this->indexOperations->getIndexAlias($this->entityName, $store);
 
             if ($this->indexOperations->indexExists($store->getId(), $indexAlias)) {
-                $index = $this->indexOperations->getIndexByName($this->getIdentifier(), $store);
+                $index = $this->indexOperations->getIndexByName($this->entityName, $store);
                 $transactionKeyQuery = ['must_not' => ['term' => ['tsk' => $this->transactionKey->load()]]];
                 $query = ['query' => ['bool' => $transactionKeyQuery]];
 
@@ -185,7 +184,7 @@ class GenericIndexerHandler
                 $this->indexOperations->deleteByQuery($store->getId(), $query);
             }
         } catch (ConnectionDisabledException $exception) {
-            // do nothing, ES indexer disabled in configuration
+            // Indexer disabled in configuration.
         }
     }
 
@@ -194,7 +193,7 @@ class GenericIndexerHandler
      */
     private function getDataProviders()
     {
-        return $this->dataProviderResolver->getDataProviders($this->typeName);
+        return $this->dataProviderResolver->getDataProviders($this->entityName);
     }
 
     /**
@@ -207,9 +206,9 @@ class GenericIndexerHandler
     private function getIndex(StoreInterface $store)
     {
         try {
-            $index = $this->indexOperations->getIndexByName($this->getIdentifier(), $store);
+            $index = $this->indexOperations->getIndexByName($this->entityName, $store);
         } catch (IndexNotExistException $e) {
-            $index = $this->indexOperations->createIndex($this->getIdentifier(), $store);
+            $index = $this->indexOperations->createIndex($this->entityName, $store);
         }
 
         return $index;
@@ -221,27 +220,9 @@ class GenericIndexerHandler
     public function createIndex(StoreInterface $store)
     {
         try {
-            return $this->indexOperations->createIndex($this->getIdentifier(), $store);
+            return $this->indexOperations->createIndex($this->entityName, $store);
         } catch (ConnectionDisabledException $exception) {
             return null;
         }
-    }
-
-    /**
-     * Get type name
-     *
-     * @return string
-     */
-    public function getTypeName()
-    {
-        return $this->typeName;
-    }
-
-    /**
-     * @return string
-     */
-    private function getIdentifier(): string
-    {
-        return $this->typeName;
     }
 }

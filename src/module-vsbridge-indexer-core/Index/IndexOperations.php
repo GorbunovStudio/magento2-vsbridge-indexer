@@ -9,7 +9,6 @@ use Divante\VsbridgeIndexerCore\Api\BulkRequestInterfaceFactory as BulkRequestFa
 use Divante\VsbridgeIndexerCore\Api\IndexInterface;
 use Divante\VsbridgeIndexerCore\Api\IndexInterfaceFactory as IndexFactory;
 use Divante\VsbridgeIndexerCore\Api\IndexOperationInterface;
-use Divante\VsbridgeIndexerCore\Api\Index\TypeInterface;
 use Divante\VsbridgeIndexerCore\Api\MappingInterface;
 use Divante\VsbridgeIndexerCore\Config\OptimizationSettings;
 use Divante\VsbridgeIndexerCore\OpenSearch\ClientResolver;
@@ -166,16 +165,12 @@ class IndexOperations implements IndexOperationInterface
             $this->indexSettings->getEsConfig()
         );
 
-        /** @var TypeInterface $type */
-        foreach ($index->getTypes() as $type) {
-            $mapping = $type->getMapping();
-
-            if ($mapping instanceof MappingInterface) {
-                $this->resolveClient($store->getId())->putMapping(
-                    $index->getName(),
-                    $mapping->getMappingProperties()
-                );
-            }
+        $mapping = $index->getMapping();
+        if ($mapping instanceof MappingInterface) {
+            $this->resolveClient($store->getId())->putMapping(
+                $index->getName(),
+                $mapping->getMappingProperties()
+            );
         }
 
         return $index;
@@ -263,7 +258,7 @@ class IndexOperations implements IndexOperationInterface
             [
                 'name' => $indexName,
                 'alias' => $indexAlias,
-                'types' => $config['types'],
+                'mapping' => $config['mapping'],
             ]
         );
 

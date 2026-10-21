@@ -13,7 +13,6 @@
     <preference for="Divante\VsbridgeIndexerCore\Api\Client\ConfigurationInterface" type="Divante\VsbridgeIndexerCore\OpenSearch\ClientConfiguration"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\Client\BuilderInterface" type="Divante\VsbridgeIndexerCore\OpenSearch\ClientBuilder"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\Index\DataProviderResolverInterface" type="Divante\VsbridgeIndexerCore\Index\DataProviderResolver" />
-    <preference for="Divante\VsbridgeIndexerCore\Api\Index\TypeInterface" type="Divante\VsbridgeIndexerCore\Index\Type"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\Index\TransactionKeyInterface" type="Divante\VsbridgeIndexerCore\Index\TransactionKey"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\BulkRequestInterface" type="Divante\VsbridgeIndexerCore\Index\BulkRequest"/>
     <preference for="Divante\VsbridgeIndexerCore\Api\BulkResponseInterface" type="Divante\VsbridgeIndexerCore\Index\BulkResponse"/>
