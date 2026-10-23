@@ -10,14 +10,11 @@ use Divante\VsbridgeIndexerCore\Api\IndexOperationInterface;
 use Divante\VsbridgeIndexerCore\Exception\ConnectionDisabledException;
 use Divante\VsbridgeIndexerCore\Exception\ConnectionUnhealthyException;
 use Divante\VsbridgeIndexerCore\Logger\IndexerLogger;
-use Divante\VsbridgeIndexerCore\Index\IndexSettings;
-use Divante\VsbridgeIndexerCore\Model\IndexerRegistry;
-use Exception;
 use Magento\Framework\Indexer\SaveHandler\Batch;
 use Magento\Store\Api\Data\StoreInterface;
 use Traversable;
 use Divante\VsbridgeIndexerCore\Api\Index\DataProviderResolverInterface;
-use Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface;
+use Divante\VsbridgeIndexerCore\Exception\IndexNotExistException;
 
 /**
  * Class IndexerHandler
@@ -26,11 +23,6 @@ use Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface;
  */
 class GenericIndexerHandler
 {
-    /**
-     * @var ElasticsearchResolverInterface
-     */
-    private $esVersionResolver;
-
     /**
      * @var Batch
      */
@@ -42,19 +34,9 @@ class GenericIndexerHandler
     private $indexOperations;
 
     /**
-     * @var IndexerRegistry
-     */
-    private $indexerRegistry;
-
-    /**
      * @var string
      */
-    private $typeName;
-
-    /**
-     * @var string
-     */
-    private $indexIdentifier;
+    private $entityName;
 
     /**
      * @var IndexerLogger
@@ -79,41 +61,33 @@ class GenericIndexerHandler
     /**
      * GenericIndexerHandler constructor.
      * @param DataProviderResolverInterface $dataProviderResolver
-     * @param ElasticsearchResolverInterface $esVersionResolver
      * @param BulkLoggerInterface $bulkLogger
-     * @param IndexOperationInterface $indexOperationProvider
      * @param IndexerLogger $indexerLogger
      * @param IndexOperationInterface $indexOperations
-     * @param IndexerRegistry $indexerRegistry
      * @param Batch $batch
      * @param TransactionKeyInterface $transactionKey
-     * @param string $typeName
+     * @param string $entityName
      */
     public function __construct(
         DataProviderResolverInterface $dataProviderResolver,
-        ElasticsearchResolverInterface $esVersionResolver,
         BulkLoggerInterface $bulkLogger,
-        IndexOperationInterface $indexOperationProvider,
         IndexerLogger $indexerLogger,
         IndexOperationInterface $indexOperations,
-        IndexerRegistry $indexerRegistry,
         Batch $batch,
         TransactionKeyInterface $transactionKey,
-        string $typeName
+        string $entityName
     ) {
-        $this->esVersionResolver = $esVersionResolver;
         $this->dataProviderResolver = $dataProviderResolver;
         $this->bulkLogger = $bulkLogger;
         $this->batch = $batch;
         $this->indexOperations = $indexOperations;
-        $this->typeName = $typeName;
+        $this->entityName = $entityName;
         $this->indexerLogger = $indexerLogger;
-        $this->indexerRegistry = $indexerRegistry;
         $this->transactionKey = $transactionKey;
     }
 
     /**
-     * Save documents in ES
+     * Save documents in OpenSearch
      *
      * @param Traversable $documents
      * @param StoreInterface $store
@@ -138,48 +112,63 @@ class GenericIndexerHandler
                 if (!empty($docs)) {
                     $bulkRequest = $this->indexOperations->createBulk()->addDocuments(
                         $index->getName(),
-                        $this->typeName,
                         $docs
                     );
 
-                    $this->indexOperations->optimizeEsIndexing($storeId, $index->getName());
-                    $response = $this->indexOperations->executeBulk($storeId, $bulkRequest);
-                    $this->indexOperations->cleanAfterOptimizeEsIndexing($storeId, $index->getName());
-                    $this->bulkLogger->log($response);
+                    $failure = null;
+                    try {
+                        $this->indexOperations->optimizeEsIndexing($storeId, $index->getName());
+                        $response = $this->indexOperations->executeBulk($storeId, $bulkRequest);
+                        $this->bulkLogger->log($response);
+                        if ($response->hasErrors()) {
+                            throw new \RuntimeException('OpenSearch bulk indexing failed; see the bulk error log.');
+                        }
+                    } catch (\Throwable $exception) {
+                        $failure = $exception;
+                        throw $exception;
+                    } finally {
+                        try {
+                            $this->indexOperations->cleanAfterOptimizeEsIndexing($storeId, $index->getName());
+                        } catch (\Throwable $cleanupException) {
+                            if ($failure === null) {
+                                throw $cleanupException;
+                            }
+                            $this->indexerLogger->error($cleanupException->getMessage());
+                        }
+                    }
                 }
 
                 $docs = null;
             }
 
-            if ($index->isNew() && !$this->indexerRegistry->isFullReIndexationRunning()) {
+            $this->indexOperations->refreshIndex($storeId, $index);
+
+            if ($index->isNew()) {
                 $this->indexOperations->switchIndexer($store->getId(), $index->getName(), $index->getAlias());
             }
-
-            $this->indexOperations->refreshIndex($store->getId(), $index);
         } catch (ConnectionDisabledException $exception) {
-            // do nothing, ES indexer disabled in configuration
+            // Indexer disabled in configuration.
         } catch (ConnectionUnhealthyException $exception) {
             $this->indexerLogger->error($exception->getMessage());
-            $this->indexOperations->cleanAfterOptimizeEsIndexing($storeId, $index->getName());
             throw $exception;
         }
     }
 
     /**
-     * Removed unnecessary documents in ES by transaction key
+     * Remove stale documents in OpenSearch by transaction key
      *
      * @param StoreInterface $store
      * @param array $docIds
      *
      * @return void
      */
-    public function cleanUpByTransactionKey(StoreInterface $store, array $docIds = null)
+    public function cleanUpByTransactionKey(StoreInterface $store, ?array $docIds = null)
     {
         try {
-            $indexAlias = $this->indexOperations->getIndexAlias($this->getIdentifier(), $store);
+            $indexAlias = $this->indexOperations->getIndexAlias($this->entityName, $store);
 
             if ($this->indexOperations->indexExists($store->getId(), $indexAlias)) {
-                $index = $this->indexOperations->getIndexByName($this->getIdentifier(), $store);
+                $index = $this->indexOperations->getIndexByName($this->entityName, $store);
                 $transactionKeyQuery = ['must_not' => ['term' => ['tsk' => $this->transactionKey->load()]]];
                 $query = ['query' => ['bool' => $transactionKeyQuery]];
 
@@ -189,14 +178,13 @@ class GenericIndexerHandler
 
                 $query = [
                     'index' => $index->getName(),
-                    'type' => $this->typeName,
                     'body' => $query,
                 ];
 
                 $this->indexOperations->deleteByQuery($store->getId(), $query);
             }
         } catch (ConnectionDisabledException $exception) {
-            // do nothing, ES indexer disabled in configuration
+            // Indexer disabled in configuration.
         }
     }
 
@@ -205,7 +193,7 @@ class GenericIndexerHandler
      */
     private function getDataProviders()
     {
-        return $this->dataProviderResolver->getDataProviders($this->typeName);
+        return $this->dataProviderResolver->getDataProviders($this->entityName);
     }
 
     /**
@@ -218,9 +206,9 @@ class GenericIndexerHandler
     private function getIndex(StoreInterface $store)
     {
         try {
-            $index = $this->indexOperations->getIndexByName($this->getIdentifier(), $store);
-        } catch (Exception $e) {
-            $index = $this->indexOperations->createIndex($this->getIdentifier(), $store);
+            $index = $this->indexOperations->getIndexByName($this->entityName, $store);
+        } catch (IndexNotExistException $e) {
+            $index = $this->indexOperations->createIndex($this->entityName, $store);
         }
 
         return $index;
@@ -231,30 +219,10 @@ class GenericIndexerHandler
      */
     public function createIndex(StoreInterface $store)
     {
-        $this->indexOperations->createIndex($this->getIdentifier(), $store);
-    }
-
-    /**
-     * Get type name
-     *
-     * @return string
-     */
-    public function getTypeName()
-    {
-        return $this->typeName;
-    }
-
-    /**
-     * @return string
-     */
-    private function getIdentifier(): string
-    {
-        $esVersion = $this->esVersionResolver->getVersion();
-
-        if ($esVersion === ElasticsearchResolverInterface::DEFAULT_ES_VERSION) {
-            return IndexSettings::DUMMY_INDEX_IDENTIFIER;
+        try {
+            return $this->indexOperations->createIndex($this->entityName, $store);
+        } catch (ConnectionDisabledException $exception) {
+            return null;
         }
-
-        return $this->typeName;
     }
 }

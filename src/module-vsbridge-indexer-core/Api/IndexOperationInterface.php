@@ -48,6 +48,11 @@ interface IndexOperationInterface
     public function getIndexByName($indexIdentifier, StoreInterface $store);
 
     /**
+     * @return string
+     */
+    public function getIndexAlias($indexIdentifier, StoreInterface $store);
+
+    /**
      * @param string $indexIdentifier
      * @param StoreInterface  $store
      *

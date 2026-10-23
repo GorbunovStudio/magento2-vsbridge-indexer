@@ -109,7 +109,7 @@ class IndexSettings
         $name = $this->getIndexAlias($indexIdentifier, $store);
         $currentDate = $this->dateTimeFactory->create();
 
-        return $name . '_' . $currentDate->getTimestamp();
+        return $name . '_' . $currentDate->getTimestamp() . '_' . bin2hex(random_bytes(4));
     }
 
     /**

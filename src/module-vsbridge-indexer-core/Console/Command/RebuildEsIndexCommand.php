@@ -53,10 +53,10 @@ class RebuildEsIndexCommand extends Command
     /**
      * @inheritdoc
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('vsbridge:reindex')
-            ->setDescription('Rebuild indexer in ES.');
+            ->setDescription('Rebuild indexes in OpenSearch.');
 
         $this->addOption(
             self::INPUT_STORE,
@@ -78,7 +78,7 @@ class RebuildEsIndexCommand extends Command
     /**
      * @inheritdoc
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->setDecorated(true);
 

@@ -38,6 +38,6 @@ class ActionFactory
     {
         $actionFactoryClass = $this->actions[$actionType];
 
-        return $this->objectManager->create($actionFactoryClass, ['typeName' => $entityType]);
+        return $this->objectManager->create($actionFactoryClass, ['entityName' => $entityType]);
     }
 }

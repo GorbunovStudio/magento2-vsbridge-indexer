@@ -30,7 +30,7 @@ abstract class AbstractAction
     /**
      * @var string
      */
-    private $typeName;
+    private $entityName;
 
     /**
      * Base constructor.
@@ -38,18 +38,18 @@ abstract class AbstractAction
      * @param RebuildActionPool $actionPool
      * @param GenericIndexerHandlerFactory $indexerHandlerFactory
      * @param StoreManager $storeManager
-     * @param string $typeName
+     * @param string $entityName
      */
     public function __construct(
         RebuildActionPool $actionPool,
         GenericIndexerHandlerFactory $indexerHandlerFactory,
         StoreManager $storeManager,
-        string $typeName
+        string $entityName
     ) {
         $this->storeManager = $storeManager;
         $this->indexerFactory = $indexerHandlerFactory;
         $this->action = $actionPool;
-        $this->typeName = $typeName;
+        $this->entityName = $entityName;
     }
 
     /**
@@ -78,7 +78,7 @@ abstract class AbstractAction
      */
     public function rebuild(int $storeId, array $ids)
     {
-        $action = $this->action->getAction($this->typeName);
+        $action = $this->action->getAction($this->entityName);
 
         return $action->rebuild($storeId, $ids);
     }
@@ -88,11 +88,11 @@ abstract class AbstractAction
      */
     public function getIndexerHandler(): GenericIndexerHandler
     {
-        return $this->indexerFactory->create(['typeName' => $this->typeName]);
+        return $this->indexerFactory->create(['entityName' => $this->entityName]);
     }
 
-    public function getTypeName(): string
+    public function getEntityName(): string
     {
-        return $this->typeName;
+        return $this->entityName;
     }
 }
