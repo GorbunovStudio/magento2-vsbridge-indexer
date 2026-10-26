@@ -45,4 +45,4 @@ No schema, configuration, or dependency migration. User reviews and commits Open
 
 ## Open Questions
 
-None blocking. Exact available isolated PHP/PHPUnit runtime and any test-only Magento class gaps will be checked during implementation.
+The user expanded scope to support Symfony Console 7 in the single-entity command and audit the other commands. `SingleEntityIndexCommand` and `ResetEsIndexCommand` now declare `execute(): int` and `configure(): void`. `RebuildEsIndexCommand` already had those signatures. Existing method bodies, exit codes, and exception propagation are unchanged.

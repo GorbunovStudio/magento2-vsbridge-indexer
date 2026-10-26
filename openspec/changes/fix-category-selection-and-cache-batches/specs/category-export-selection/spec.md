@@ -33,3 +33,17 @@ The exporter SHALL raise a readable lookup error identifying the requested IDs w
 - **WHEN** a nonempty list of multiple missing category IDs resolves to no eligible IDs
 - **THEN** export fails before a category page query or document write
 - **AND** no successful indexing event occurs
+
+### Requirement: Symfony Console 7 command compatibility
+
+All package console commands SHALL load and register under Symfony Console 7 with compatible overridden method signatures. Existing command names, arguments, options, return codes, and exception propagation MUST remain unchanged.
+
+#### Scenario: Register package commands
+- **WHEN** `vsbridge:index`, `vsbridge:reset`, and `vsbridge:reindex` are loaded and registered with Symfony Console 7
+- **THEN** registration succeeds without incompatible method declarations
+- **AND** command execution returns integer status codes
+
+#### Scenario: Missing category on Symfony Console 7
+- **WHEN** the single-entity command selects a missing category under Symfony Console 7
+- **THEN** the existing missing-category regression runs without a compatibility skip
+- **AND** the lookup error propagates as a nonzero result without successful indexing side effects

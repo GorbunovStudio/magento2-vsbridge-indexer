@@ -4,6 +4,8 @@ namespace Divante\VsbridgeIndexerCatalog\Model\Indexer\Action;
 
 use Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Category as ResourceModel;
 use Divante\VsbridgeIndexerCore\Indexer\RebuildActionInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Phrase;
 
 /**
  * Class Category
@@ -37,7 +39,16 @@ class Category implements RebuildActionInterface
         $lastCategoryId = 0;
 
         if (!empty($categoryIds)) {
-            $categoryIds = $this->resourceModel->getParentIds($categoryIds);
+            $resolvedCategoryIds = $this->resourceModel->getParentIds($categoryIds);
+
+            if (empty($resolvedCategoryIds)) {
+                throw new NoSuchEntityException(new Phrase(
+                    'No categories found for the requested IDs: %1.',
+                    [implode(', ', $categoryIds)]
+                ));
+            }
+
+            $categoryIds = $resolvedCategoryIds;
         }
 
         do {
