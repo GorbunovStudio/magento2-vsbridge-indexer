@@ -45,7 +45,7 @@ class LoadTierPricesTest extends TestCase
     private $attributeMock;
 
 
-    protected function setup()
+    protected function setUp(): void
     {
         $this->attributeDataProviderMock = $this->getMockBuilder(AttributeDataProvider::class)
             ->disableOriginalConstructor()
@@ -84,12 +84,11 @@ class LoadTierPricesTest extends TestCase
         );
     }
 
-    public function testGetWebsiteIdWhenScopeIsNotGlobal()
+    public function testGetWebsiteIdWhenScopeIsNotGlobal(): void
     {
         $storeId = 1;
         $reflector = new ReflectionClass( LoadTierPrices::class );
         $method = $reflector->getMethod( 'getWebsiteId' );
-        $method->setAccessible( true );
 
         $this->attributeMock->method('isScopeGlobal')->willReturn(false);
 
@@ -103,12 +102,11 @@ class LoadTierPricesTest extends TestCase
         $this->assertEquals( 1, $result );
     }
 
-    public function testGetWebsiteIdWhenScopeIsGlobal()
+    public function testGetWebsiteIdWhenScopeIsGlobal(): void
     {
         $storeId = 1;
         $reflector = new ReflectionClass( LoadTierPrices::class );
         $method = $reflector->getMethod( 'getWebsiteId' );
-        $method->setAccessible( true );
 
         $this->attributeDataProviderMock->method('getAttributeByCode')
             ->willReturn($this->attributeMock);
