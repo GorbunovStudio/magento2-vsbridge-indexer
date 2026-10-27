@@ -82,7 +82,7 @@ The existing queue guard compares cluster pending tasks and batch document count
 
 - Which exact OpenSearch 2.x deployment version and Magento/PHP combinations will be used for integration certification? This does not block implementation; it is required before compatibility is claimed.
 - Does the deployed VSF API already support typeless entity-specific indexes? Verification is outside this repository and blocks production cutover.
-- Resolved during implementation: the old queue heuristic is unsupported. OpenSearch 2.19.0 exposes `search.queue_size` and `write.queue_size`, not the expected `search.max_queue_size`; queued cluster tasks and batch document counts also do not represent write-queue occupancy. Enabled configurations receive the documented actionable error.
+- Resolved during implementation: the old queue heuristic is unsupported. OpenSearch 2.15.0 exposes `search.queue_size` and `write.queue_size`, not the expected `search.max_queue_size`; queued cluster tasks and batch document counts also do not represent write-queue occupancy. Enabled configurations receive the documented actionable error.
 
 ## Investigation References
 

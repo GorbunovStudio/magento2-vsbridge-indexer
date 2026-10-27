@@ -53,7 +53,7 @@
 
 ## Validation record
 
-- 2026-10-19: PHP 8.5.6, PHPUnit 10.5.66, OpenSearch PHP 2.4.5, OpenSearch server 2.19.0. Composer resolved Magento Framework 103.0.9. The dependency update removed only six unused Elasticsearch-related packages; it upgraded none.
+- 2026-10-19: PHP 8.5.6, PHPUnit 10.5.66, OpenSearch PHP 2.4.5, OpenSearch server 2.15.0. Composer resolved Magento Framework 103.0.9. The dependency update removed only six unused Elasticsearch-related packages; it upgraded none.
 - Core unit suite: 32 tests, 61 assertions, passing. Existing core tests were adapted for PHPUnit 10; new checks cover typeless requests, response/errors, alias publication failures, bulk/settings failures, health policies, disabled checks, entity events, and alias naming.
 - Live OpenSearch fixture: 1 lifecycle test, 173 assertions, passing; all eight built-in entity mappings with product additions, two stores, two rebuilds, incremental updates/deletion/cleanup, restoration, and a failed replacement preserving the old alias.
 - Live HTTPS demo fixture: 1 test, 4 assertions, passing; production builder rejects the untrusted certificate, fixture-only trust bypass permits basic-auth success, wrong credentials propagate 401.
