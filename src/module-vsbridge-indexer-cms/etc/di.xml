@@ -5,13 +5,13 @@
     <virtualType name="Divante\VsbridgeIndexerCms\Model\Indexer\CmsBlock"
                  type="Divante\VsbridgeIndexerCore\Indexer\Base">
         <arguments>
-            <argument name="typeName" xsi:type="string">cms_block</argument>
+            <argument name="entityName" xsi:type="string">cms_block</argument>
         </arguments>
     </virtualType>
     <virtualType name="Divante\VsbridgeIndexerCms\Model\Indexer\CmsPage"
                  type="Divante\VsbridgeIndexerCore\Indexer\Base">
         <arguments>
-            <argument name="typeName" xsi:type="string">cms_page</argument>
+            <argument name="entityName" xsi:type="string">cms_page</argument>
         </arguments>
     </virtualType>
 

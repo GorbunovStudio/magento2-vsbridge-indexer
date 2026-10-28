@@ -52,7 +52,7 @@ class SingleEntityIndexCommand extends AbstractIndexerCommand
     /**
      * @inheritdoc
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('vsbridge:index')
             ->setDescription(
@@ -93,7 +93,7 @@ class SingleEntityIndexCommand extends AbstractIndexerCommand
     /**
      * @inheritdoc
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->initObjectManager();
         $output->setDecorated(true);

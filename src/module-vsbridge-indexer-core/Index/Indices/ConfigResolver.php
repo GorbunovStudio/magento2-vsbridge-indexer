@@ -2,70 +2,20 @@
 
 namespace Divante\VsbridgeIndexerCore\Index\Indices;
 
-use Divante\VsbridgeIndexerCore\Exception\ConfigParserNotExistException;
-use Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface;
-use Magento\Framework\ObjectManagerInterface;
-
-/**
- * Resolver config for active elasticsearch version
- */
+/** Resolve the single entity-specific OpenSearch layout, ignoring obsolete engine settings. */
 class ConfigResolver
 {
-    /**
-     * Object Manager instance
-     *
-     * @var ObjectManagerInterface
-     */
-    private $objectManager;
-
-    /**
-     * @var ElasticsearchResolverInterface
-     */
-    private $elasticsearchResolver;
-
-    /**
-     * @var array
-     */
-    private $configParsers;
-
-    /**
-     * Config\Data
-     */
     private $configData;
+    private $configParser;
 
-    /**
-     * ConfigResolver constructor.
-     * @param Config\Data $configData
-     * @param ObjectManagerInterface $objectManager
-     * @param ElasticsearchResolverInterface $elasticsearchResolver
-     * @param array $configParsers
-     */
-    public function __construct(
-        Config\Data $configData,
-        ObjectManagerInterface $objectManager,
-        ElasticsearchResolverInterface $elasticsearchResolver,
-        array $configParsers
-    ) {
+    public function __construct(Config\Data $configData, ConfigParser $configParser)
+    {
         $this->configData = $configData;
-        $this->configParsers = $configParsers;
-        $this->objectManager = $objectManager;
-        $this->elasticsearchResolver = $elasticsearchResolver;
+        $this->configParser = $configParser;
     }
 
-    /**
-     * @return array
-     */
     public function resolve(): array
     {
-        $currentEsVersion = $this->elasticsearchResolver->getVersion();
-
-        if (!isset($this->configParsers[$currentEsVersion])) {
-            throw new ConfigParserNotExistException(__('There is no parser for: ' . $currentEsVersion));
-        }
-
-        /** @var ConfigParserInterface $configParser */
-        $configParser = $this->objectManager->get($this->configParsers[$currentEsVersion]);
-
-        return $configParser->parse($this->configData->get());
+        return $this->configParser->parse($this->configData->get());
     }
 }

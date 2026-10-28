@@ -25,10 +25,10 @@ class BulkRequest implements BulkRequestInterface
     /**
      * @inheritdoc
      */
-    public function deleteDocuments($index, $type, array $docIds)
+    public function deleteDocuments($index, array $docIds)
     {
         foreach ($docIds as $docId) {
-            $this->deleteDocument($index, $type, $docId);
+            $this->deleteDocument($index, $docId);
         }
 
         return $this;
@@ -36,17 +36,15 @@ class BulkRequest implements BulkRequestInterface
 
     /**
      * @param string $index
-     * @param string $type
      * @param $docId
      *
      * @return $this
      */
-    private function deleteDocument($index, $type, $docId)
+    private function deleteDocument($index, $docId)
     {
         $this->bulkData[] = [
             'delete' => [
                 '_index' => $index,
-                '_type' => $type,
                 '_id' => $docId,
             ]
         ];
@@ -57,11 +55,11 @@ class BulkRequest implements BulkRequestInterface
     /**
      * @inheritdoc
      */
-    public function addDocuments($index, $type, array $data)
+    public function addDocuments($index, array $data)
     {
         foreach ($data as $docId => $documentData) {
             $documentData = $this->prepareDocument($documentData);
-            $this->addDocument($index, $type, $docId, $documentData);
+            $this->addDocument($index, $docId, $documentData);
         }
 
         return $this;
@@ -81,12 +79,11 @@ class BulkRequest implements BulkRequestInterface
     /**
      * @inheritdoc
      */
-    private function addDocument($index, $type, $docId, array $data)
+    private function addDocument($index, $docId, array $data)
     {
         $this->bulkData[] = [
             'index' => [
                 '_index' => $index,
-                '_type' => $type,
                 '_id' => $docId,
             ]
         ];
