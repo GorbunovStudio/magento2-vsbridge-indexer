@@ -6,10 +6,12 @@ use Divante\VsbridgeIndexerCore\OpenSearch\Client;
 use Divante\VsbridgeIndexerCore\OpenSearch\ClientBuilder;
 use Divante\VsbridgeIndexerCore\Index\BulkRequest;
 use Divante\VsbridgeIndexerCore\Index\BulkResponse;
+use OpenSearch\EndpointFactory;
 use OpenSearch\Exception\NotFoundHttpException;
 use OpenSearch\Exception\UnauthorizedHttpException;
 use OpenSearch\Exception\ForbiddenHttpException;
 use OpenSearch\Exception\InternalServerErrorHttpException;
+use OpenSearch\Serializers\SmartSerializer;
 use OpenSearch\TransportInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +30,7 @@ class ClientTest extends TestCase
                 return $result;
             }
         );
-        return new Client(new \OpenSearch\Client($transport));
+        return new Client(new \OpenSearch\Client($transport, new EndpointFactory(new SmartSerializer())));
     }
 
     public function testTypelessMappingAndBulk(): void
