@@ -8,15 +8,16 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\HTTP\Adapter\Curl;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
 class ProcessorTest extends TestCase
 {
-    /** @dataProvider batches */
+    #[DataProvider('batches')]
     public function testRequestsContainOnlyCurrentBatch($size, array $ids, array $expectedTags, string $type): void
     {
-        $scope = $this->createMock(ScopeConfigInterface::class);
+        $scope = $this->createStub(ScopeConfigInterface::class);
         $values = [
             'clear_cache' => '1', 'entity_invalidate_batch_size' => $size,
             'vsf_base_url' => 'https://cache.invalid/', 'invalidate_cache_key' => 'test-key',

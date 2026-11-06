@@ -99,7 +99,7 @@ abstract class AbstractEavAttributes implements EavAttributesInterface
      * @return array
      * @throws \Exception
      */
-    public function loadAttributesData($storeId, array $entityIds, array $requiredAttributes = null)
+    public function loadAttributesData($storeId, array $entityIds, ?array $requiredAttributes = null)
     {
         $this->attributesById = $this->initAttributes();
         $tableAttributes = [];
@@ -140,7 +140,7 @@ abstract class AbstractEavAttributes implements EavAttributesInterface
      * @return bool
      * @throws \Exception
      */
-    public function canIndexAttribute(\Magento\Eav\Model\Entity\Attribute $attribute, array $allowedAttributes = null)
+    public function canIndexAttribute(\Magento\Eav\Model\Entity\Attribute $attribute, ?array $allowedAttributes = null)
     {
         if ($attribute->isStatic()) {
             return false;

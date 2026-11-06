@@ -47,33 +47,13 @@ class LoadTierPricesTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->attributeDataProviderMock = $this->getMockBuilder(AttributeDataProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->tierPriceResourceMock = $this->getMockBuilder(TierPrices::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeManagerMock = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->productMetaDataMock = $this->getMockBuilder(ProductMetaData::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->configSettingsMock = $this->getMockBuilder(CatalogConfigurationInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeMock = $this->getMockBuilder(Store::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->attributeMock = $this->getMockBuilder(Attribute::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->attributeDataProviderMock = $this->createStub(AttributeDataProvider::class);
+        $this->tierPriceResourceMock = $this->createStub(TierPrices::class);
+        $this->storeManagerMock = $this->createStub(StoreManagerInterface::class);
+        $this->productMetaDataMock = $this->createStub(ProductMetaData::class);
+        $this->configSettingsMock = $this->createStub(CatalogConfigurationInterface::class);
+        $this->storeMock = $this->createStub(Store::class);
+        $this->attributeMock = $this->createStub(Attribute::class);
 
         $this->loadTierPrices = new LoadTierPrices(
             $this->configSettingsMock,

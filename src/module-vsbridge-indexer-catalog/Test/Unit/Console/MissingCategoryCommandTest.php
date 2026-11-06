@@ -29,6 +29,7 @@ use Magento\Framework\ObjectManagerInterface;
 use Magento\Indexer\Model\Indexer;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Application;
@@ -41,16 +42,16 @@ class MissingCategoryCommandTest extends TestCase
         return [['rows'], ['console']];
     }
 
-    /** @dataProvider executionPaths */
+    #[DataProvider('executionPaths')]
     public function testMissingCategoryFailsWithoutWritesOrSuccessInvalidation(string $path): void
     {
         $resource = $this->createMock(ResourceCategory::class);
         $resource->expects(self::once())->method('getParentIds')->with(['2147483647'])->willReturn([]);
         $resource->expects(self::never())->method('getCategories');
         $pool = $this->createMock(RebuildActionPool::class);
-        $pool->method('getAction')->with('category')->willReturn(new Category($resource));
+        $pool->expects(self::once())->method('getAction')->with('category')->willReturn(new Category($resource));
 
-        $store = $this->createMock(StoreInterface::class);
+        $store = $this->createStub(StoreInterface::class);
         $store->method('getId')->willReturn(3);
         $store->method('getName')->willReturn('Test store');
         $stores = $this->createMock(StoreManager::class);
@@ -64,24 +65,24 @@ class MissingCategoryCommandTest extends TestCase
             $operations->expects(self::never())->method($method);
         }
         $handler = new GenericIndexerHandler(
-            $this->createMock(DataProviderResolverInterface::class),
-            $this->createMock(BulkLoggerInterface::class),
+            $this->createStub(DataProviderResolverInterface::class),
+            $this->createStub(BulkLoggerInterface::class),
             new IndexerLogger('test'), $operations, new Batch(),
-            $this->createMock(TransactionKeyInterface::class), 'category'
+            $this->createStub(TransactionKeyInterface::class), 'category'
         );
         $handlerFactory = $this->createMock(GenericIndexerHandlerFactory::class);
-        $handlerFactory->method('create')->with(['entityName' => 'category'])->willReturn($handler);
+        $handlerFactory->expects(self::once())->method('create')->with(['entityName' => 'category'])->willReturn($handler);
 
         // Model an event subscriber that would invalidate cache after successful indexing.
         // No external Budsies observer or real HTTP connection is loaded.
         $curlFactory = $this->createMock(CurlFactory::class);
         $curlFactory->expects(self::never())->method('create');
-        $cacheConfig = $this->createMock(ConfigInterface::class);
+        $cacheConfig = $this->createStub(ConfigInterface::class);
         $cacheConfig->method('clearCache')->willReturn(true);
         $events = $this->createMock(ManagerInterface::class);
         $cache = new Processor($curlFactory, $cacheConfig, $events, new NullLogger());
         $successEvents = [];
-        $events->method('dispatch')->willReturnCallback(static function ($name, $data) use ($cache, &$successEvents) {
+        $events->expects(self::never())->method('dispatch')->willReturnCallback(static function ($name, $data) use ($cache, &$successEvents) {
             if ($name === EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER) {
                 $successEvents[] = $data;
                 $cache->cleanCacheByDocIds($data['store_id'], $data['data_type'], $data['entity_ids']);
@@ -89,7 +90,7 @@ class MissingCategoryCommandTest extends TestCase
         });
         $rows = new Rows($pool, $handlerFactory, $stores, $events, 'category');
         $actionFactory = $this->createMock(ActionFactory::class);
-        $actionFactory->method('create')->with('rows', 'category')->willReturn($rows);
+        $actionFactory->expects(self::once())->method('create')->with('rows', 'category')->willReturn($rows);
         $base = new Base($actionFactory, 'category');
 
         if ($path === 'rows') {
@@ -112,16 +113,16 @@ class MissingCategoryCommandTest extends TestCase
         $indexer->method('getTitle')->willReturn('Categories');
 
         $storeManager = $this->createMock(StoreManagerInterface::class);
-        $storeManager->method('getStore')->with('3')->willReturn($store);
-        $objects = $this->createMock(ObjectManagerInterface::class);
+        $storeManager->expects(self::once())->method('getStore')->with('3')->willReturn($store);
+        $objects = $this->createStub(ObjectManagerInterface::class);
         $objects->method('get')->willReturnMap([
             [StoreManagerInterface::class, $storeManager], [StoreManager::class, $stores],
         ]);
         $command = $this->getMockBuilder(SingleEntityIndexCommand::class)
-            ->setConstructorArgs([$this->createMock(ObjectManagerFactory::class)])
+            ->setConstructorArgs([$this->createStub(ObjectManagerFactory::class)])
             ->onlyMethods(['getObjectManager', 'getAllIndexers'])->getMock();
         $command->method('getObjectManager')->willReturn($objects);
-        $command->method('getAllIndexers')->willReturn([$indexer]);
+        $command->expects(self::once())->method('getAllIndexers')->willReturn([$indexer]);
         $application = new Application();
         $application->setAutoExit(false);
         $application->add($command);

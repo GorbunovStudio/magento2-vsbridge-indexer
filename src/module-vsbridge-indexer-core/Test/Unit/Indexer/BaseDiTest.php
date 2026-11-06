@@ -41,7 +41,7 @@ class BaseDiTest extends TestCase
                 $actions->expects(self::once())->method('create')
                     ->with('full', $definition['arguments']['entityName'])->willReturn($action);
                 $manager = $this->createMock(ObjectManagerInterface::class);
-                $manager->method('get')->with(ActionFactory::class)->willReturn($actions);
+                $manager->expects(self::once())->method('get')->with(ActionFactory::class)->willReturn($actions);
                 $config = new Config();
                 $config->extend($configuration);
                 $factory = new $factoryClass($config, $manager, new Runtime());

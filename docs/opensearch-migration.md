@@ -48,14 +48,14 @@ Indexers, action factories, and DI arguments use `entityName` instead of `typeNa
 
 ## Running checks
 
-Use PHPUnit 10.5 (a local executable or PHAR) without adding it to production dependencies:
+Use PHPUnit 12 (a local executable or PHAR) on PHP 8.3+ without adding it to production dependencies. Treat warnings, deprecations, and PHPUnit notices as failures:
 
 ```sh
-php /path/to/phpunit-10.phar -c phpunit.xml.dist
+php /path/to/phpunit-12.phar -c phpunit.xml.dist --fail-on-warning --fail-on-deprecation --fail-on-phpunit-notice
 
 docker compose -f tests/opensearch.compose.yaml up -d
 # Wait for http://127.0.0.1:19200/ to report readiness.
-OPENSEARCH_TEST_URL=http://127.0.0.1:19200 php /path/to/phpunit-10.phar --bootstrap tests/bootstrap.php tests/Integration/OpenSearchTest.php
+OPENSEARCH_TEST_URL=http://127.0.0.1:19200 php /path/to/phpunit-12.phar --bootstrap tests/bootstrap.php --fail-on-warning --fail-on-deprecation --fail-on-phpunit-notice tests/Integration/OpenSearchTest.php
 docker compose -f tests/opensearch.compose.yaml down
 ```
 
@@ -66,7 +66,7 @@ For basic authentication and rejection of untrusted HTTPS certificates, use the 
 ```sh
 docker compose -f tests/opensearch.compose.yaml --profile tls up -d secure
 # Wait for the demo HTTPS endpoint to start.
-OPENSEARCH_DEMO_TLS_URL=https://127.0.0.1:19201 php /path/to/phpunit-10.phar --bootstrap tests/bootstrap.php tests/Integration/DemoTlsTest.php
+OPENSEARCH_DEMO_TLS_URL=https://127.0.0.1:19201 php /path/to/phpunit-12.phar --bootstrap tests/bootstrap.php --fail-on-warning --fail-on-deprecation --fail-on-phpunit-notice tests/Integration/DemoTlsTest.php
 docker compose -f tests/opensearch.compose.yaml --profile tls down
 ```
 

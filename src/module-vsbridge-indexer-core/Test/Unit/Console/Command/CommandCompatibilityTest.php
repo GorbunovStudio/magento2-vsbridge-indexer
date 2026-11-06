@@ -16,15 +16,15 @@ class CommandCompatibilityTest extends TestCase
 {
     public function testAllCommandsLoadAndRegisterWithInstalledConsole(): void
     {
-        $factory = $this->createMock(ObjectManagerFactory::class);
+        $factory = $this->createStub(ObjectManagerFactory::class);
         $application = new Application();
         foreach ([
             'vsbridge:index' => new SingleEntityIndexCommand($factory),
             'vsbridge:reset' => new ResetEsIndexCommand($factory),
             'vsbridge:reindex' => new RebuildEsIndexCommand(
-                $this->createMock(RebuildFactory::class),
-                $this->createMock(ManagerInterface::class),
-                $this->createMock(State::class)
+                $this->createStub(RebuildFactory::class),
+                $this->createStub(ManagerInterface::class),
+                $this->createStub(State::class)
             ),
         ] as $name => $command) {
             $application->add($command);

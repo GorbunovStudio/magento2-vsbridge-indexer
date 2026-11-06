@@ -5,11 +5,12 @@ namespace Divante\VsbridgeIndexerCatalog\Test\Unit\Model\Indexer\Action;
 use Divante\VsbridgeIndexerCatalog\Model\Indexer\Action\Category;
 use Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Category as ResourceCategory;
 use Magento\Framework\Exception\NoSuchEntityException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CategoryTest extends TestCase
 {
-    /** @dataProvider successfulSelections */
+    #[DataProvider('successfulSelections')]
     public function testSelectionAndPagination(array $input, array $resolved, array $exported): void
     {
         $resource = $this->createMock(ResourceCategory::class);
@@ -40,7 +41,7 @@ class CategoryTest extends TestCase
         ];
     }
 
-    /** @dataProvider missingSelections */
+    #[DataProvider('missingSelections')]
     public function testUnresolvedPartialSelectionFailsBeforePageQuery(array $ids): void
     {
         $resource = $this->createMock(ResourceCategory::class);

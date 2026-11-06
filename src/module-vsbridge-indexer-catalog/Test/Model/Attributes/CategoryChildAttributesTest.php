@@ -6,6 +6,7 @@ use Divante\VsbridgeIndexerCatalog\Model\Attributes\CategoryAttributes;
 use Divante\VsbridgeIndexerCatalog\Model\Attributes\CategoryChildAttributes;
 use Divante\VsbridgeIndexerCatalog\Model\SystemConfig\CategoryConfigInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class CategoryChildAttributesTest
@@ -43,9 +44,8 @@ class CategoryChildAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      * @param int $storeId
      * @param array $selectedAttributes
-     *
-     * @dataProvider provideAllowedAttributes
      */
+    #[DataProvider('provideAllowedAttributes')]
     public function testGetChildrenRequiredAttributes(int $storeId, array $selectedAttributes): void
     {
         $attributes = CategoryAttributes::MINIMAL_ATTRIBUTE_SET;
