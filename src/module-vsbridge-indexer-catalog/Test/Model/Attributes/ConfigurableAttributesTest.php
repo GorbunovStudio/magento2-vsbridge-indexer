@@ -5,6 +5,7 @@ namespace Divante\VsbridgeIndexerCatalog\Test\Model\Attributes;
 use Divante\VsbridgeIndexerCatalog\Model\Attributes\ConfigurableAttributes;
 use Divante\VsbridgeIndexerCatalog\Api\CatalogConfigurationInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class ConfigurableAttributesTest
@@ -42,9 +43,8 @@ class ConfigurableAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      * @param int $storeId
      * @param array $selectedAttributes
-     *
-     * @dataProvider provideAllowedAttributes
      */
+    #[DataProvider('provideAllowedAttributes')]
     public function testGetChildrenRequiredAttributes(int $storeId, array $selectedAttributes): void
     {
         $attributes = ConfigurableAttributes::MINIMAL_ATTRIBUTE_SET;

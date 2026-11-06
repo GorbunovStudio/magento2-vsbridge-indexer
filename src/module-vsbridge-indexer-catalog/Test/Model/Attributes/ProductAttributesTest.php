@@ -5,6 +5,7 @@ namespace Divante\VsbridgeIndexerCatalog\Test\Model\Attributes;
 use Divante\VsbridgeIndexerCatalog\Model\Attributes\ProductAttributes;
 use Divante\VsbridgeIndexerCatalog\Api\CatalogConfigurationInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class ProductAttributesTest
@@ -42,9 +43,8 @@ class ProductAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      * @param int $storeId
      * @param array $selectedAttributes
-     *
-     * @dataProvider provideAllowedAttributes
      */
+    #[DataProvider('provideAllowedAttributes')]
     public function testGetAttributes(int $storeId, array $selectedAttributes): void
     {
         $attributes = ProductAttributes::REQUIRED_ATTRIBUTES;

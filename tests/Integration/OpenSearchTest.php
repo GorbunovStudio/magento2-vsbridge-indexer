@@ -48,36 +48,36 @@ class OpenSearchTest extends TestCase
         foreach ($maps as $entity => $mapping) {
             $config[$entity] = ['mapping' => $mapping];
         }
-        $parser = $this->createMock(ConfigResolver::class);
+        $parser = $this->createStub(ConfigResolver::class);
         $parser->method('resolve')->willReturn($config);
-        $settings = $this->createMock(IndicesSettings::class);
+        $settings = $this->createStub(IndicesSettings::class);
         $settings->method('getIndexNamePrefix')->willReturn($prefix);
         $settings->method('getIndexIdentifier')->willReturn('id');
         $settings->method('addIdentifierToDefaultStoreView')->willReturn(true);
         $settings->method('getFieldsLimit')->willReturn(1000);
         $settings->method('getBatchIndexingSize')->willReturn(100);
-        $indexSettings = new IndexSettings($this->createMock(StoreManagerInterface::class), $parser, $settings, new DateTimeFactory());
-        $resolver = $this->createMock(ClientResolver::class);
+        $indexSettings = new IndexSettings($this->createStub(StoreManagerInterface::class), $parser, $settings, new DateTimeFactory());
+        $resolver = $this->createStub(ClientResolver::class);
         $resolver->method('getClient')->willReturn($client);
-        $indexFactory = $this->createMock(IndexInterfaceFactory::class);
+        $indexFactory = $this->createStub(IndexInterfaceFactory::class);
         $indexFactory->method('create')->willReturnCallback(static fn($data) => new Index(...$data));
-        $requestFactory = $this->createMock(BulkRequestInterfaceFactory::class);
+        $requestFactory = $this->createStub(BulkRequestInterfaceFactory::class);
         $requestFactory->method('create')->willReturnCallback(static fn() => new BulkRequest());
-        $responseFactory = $this->createMock(BulkResponseInterfaceFactory::class);
+        $responseFactory = $this->createStub(BulkResponseInterfaceFactory::class);
         $responseFactory->method('create')->willReturnCallback(static fn($data) => new BulkResponse($data['rawResponse']));
-        $optimization = $this->createMock(OptimizationSettings::class);
+        $optimization = $this->createStub(OptimizationSettings::class);
         $optimization->method('changeNumberOfReplicas')->willReturn(true);
         $optimization->method('changeRefreshInterval')->willReturn(true);
         $optimization->method('getDefaultNumberOfReplicas')->willReturn(0);
         $optimization->method('getDefaultRefreshInterval')->willReturn('1s');
         $operations = new IndexOperations($resolver, $responseFactory, $requestFactory, $indexSettings, $indexFactory, $optimization);
-        $providers = $this->createMock(DataProviderResolverInterface::class);
+        $providers = $this->createStub(DataProviderResolverInterface::class);
         $providers->method('getDataProviders')->willReturn([]);
-        $transaction = $this->createMock(TransactionKeyInterface::class);
+        $transaction = $this->createStub(TransactionKeyInterface::class);
         $transaction->method('load')->willReturn('new');
         $stores = [];
         foreach ([1, 2] as $id) {
-            $store = $this->createMock(StoreInterface::class);
+            $store = $this->createStub(StoreInterface::class);
             $store->method('getId')->willReturn($id);
             $stores[] = $store;
         }
@@ -155,15 +155,15 @@ class OpenSearchTest extends TestCase
 
     private function mappings(): array
     {
-        $events = $this->createMock(ManagerInterface::class);
+        $events = $this->createStub(ManagerInterface::class);
         $events->method('dispatch')->willReturnCallback(static function ($name, $data) {
             $properties = $data['mapping']->getData('properties');
             $properties['extension_flag'] = ['type' => 'boolean'];
             $data['mapping']->setData('properties', $properties);
         });
-        $productAttributes = $this->createMock(\Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Product\LoadAttributes::class);
+        $productAttributes = $this->createStub(\Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Product\LoadAttributes::class);
         $productAttributes->method('execute')->willReturn([]);
-        $categoryAttributes = $this->createMock(\Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Category\LoadAttributes::class);
+        $categoryAttributes = $this->createStub(\Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Category\LoadAttributes::class);
         $categoryAttributes->method('execute')->willReturn([]);
         $swatch = new Catalog\Attribute\SwatchMapping();
         $options = new Catalog\Attribute\OptionMapping($swatch);
@@ -177,7 +177,7 @@ class OpenSearchTest extends TestCase
         $additional['downloadable_options'] = new \Divante\VsbridgeDownloadable\Index\Mapping\Product\DownloadableOptionsMapping();
         return [
             'product' => new Catalog\Product(new GeneralMapping(), new Catalog\StockMapping(), $productAttributes, [], $additional),
-            'category' => new Catalog\Category($events, new GeneralMapping(), $this->createMock(\Divante\VsbridgeIndexerCatalog\Model\Attributes\CategoryChildAttributes::class), $categoryAttributes, []),
+            'category' => new Catalog\Category($events, new GeneralMapping(), $this->createStub(\Divante\VsbridgeIndexerCatalog\Model\Attributes\CategoryChildAttributes::class), $categoryAttributes, []),
             'attribute' => new Catalog\Attribute($options),
             'cms_page' => new \Divante\VsbridgeIndexerCms\Index\Mapping\CmsPage($events),
             'cms_block' => new \Divante\VsbridgeIndexerCms\Index\Mapping\CmsBlock($events),

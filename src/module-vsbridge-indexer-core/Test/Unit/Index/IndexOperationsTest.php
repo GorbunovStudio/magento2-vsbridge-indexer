@@ -11,8 +11,9 @@ use Divante\VsbridgeIndexerCore\Api\BulkRequestInterfaceFactory as BulkRequestFa
 use Divante\VsbridgeIndexerCore\Api\IndexInterfaceFactory as IndexFactory;
 use Divante\VsbridgeIndexerCore\Index\Index;
 use Divante\VsbridgeIndexerCore\OpenSearch\ClientResolver;
-use PHPUnit\Framework\TestCase;
 use Magento\Store\Model\Store;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
 class IndexOperationsTest extends TestCase
 {
@@ -66,38 +67,14 @@ class IndexOperationsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storeMock = $this->getMockBuilder(Store::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->esIndexSettingsMock = $this->getMockBuilder(IndexSettings::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->bulkRequestFactoryMock = $this->getMockBuilder(BulkRequestFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->bulkResponseFactoryMock = $this->getMockBuilder(BulkResponseFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->indexFactoryMock = $this->getMockBuilder(IndexFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
-            ->getMock();
-
-        $this->clientMock = $this->getMockBuilder(
-            ClientInterface::class
-        )->disableOriginalConstructor()->getMock();
-
-        $this->clientResolverMock = $this->getMockBuilder(ClientResolver::class)
-                ->disableOriginalConstructor()
-                ->getMock();
-
-        $this->optimizationSettingsMock = $this->getMockBuilder(OptimizationSettings::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeMock = $this->createStub(Store::class);
+        $this->esIndexSettingsMock = $this->createStub(IndexSettings::class);
+        $this->bulkRequestFactoryMock = $this->createStub(BulkRequestFactory::class);
+        $this->bulkResponseFactoryMock = $this->createStub(BulkResponseFactory::class);
+        $this->indexFactoryMock = $this->createStub(IndexFactory::class);
+        $this->clientMock = $this->createMock(ClientInterface::class);
+        $this->clientResolverMock = $this->createStub(ClientResolver::class);
+        $this->optimizationSettingsMock = $this->createStub(OptimizationSettings::class);
 
         $this->indexOperations = new IndexOperations(
             $this->clientResolverMock,
@@ -122,21 +99,21 @@ class IndexOperationsTest extends TestCase
 
         $this->indexFactoryMock
             ->method('create')
-            ->with([
-                'name' => $name,
-                'alias' => $alias,
-                'mapping' => null,
-            ])
-            ->willReturn($indexMock);
+            ->willReturnMap([
+                [
+                    ['name' => $name, 'alias' => $alias, 'mapping' => null],
+                    $indexMock,
+                ],
+            ]);
 
         $this->esIndexSettingsMock->method('getConfig')->willReturn($this->indicesXmlConfiguration);
         $this->esIndexSettingsMock->method('getIndexAlias')->willReturn($alias);
         $this->esIndexSettingsMock->method('createIndexName')->willReturn($name);
         $this->esIndexSettingsMock->method('getEsConfig')->willReturn([]);
-        $this->clientResolverMock->method('getClient')->with(1)->willReturn($this->clientMock);
+        $this->clientResolverMock->method('getClient')->willReturnMap([[1, $this->clientMock]]);
         $this->storeMock->method('getId')->willReturn(1);
 
-        $this->clientMock->method('indexExists')->with($name)->willReturn(true);
+        $this->clientMock->expects(self::once())->method('indexExists')->with($name)->willReturn(true);
 
         $index = $this->indexOperations->getIndexByName('vue', $this->storeMock);
         $this->assertEquals($indexMock, $index);
@@ -158,18 +135,19 @@ class IndexOperationsTest extends TestCase
 
         $this->indexFactoryMock
             ->method('create')
-            ->with([
-                'name' => $name,
-                'alias' => $alias,
-                'mapping' => null,
-            ])
-            ->willReturn($indexMock);
+            ->willReturnMap([
+                [
+                    ['name' => $name, 'alias' => $alias, 'mapping' => null],
+                    $indexMock,
+                ],
+            ]);
 
         $this->esIndexSettingsMock->method('getConfig')->willReturn($this->indicesXmlConfiguration);
         $this->esIndexSettingsMock->method('getIndexAlias')->willReturn($alias);
         $this->esIndexSettingsMock->method('createIndexName')->willReturn($name);
         $this->esIndexSettingsMock->method('getEsConfig')->willReturn([]);
-        $this->clientResolverMock->method('getClient')->with(1)->willReturn($this->clientMock);
+        $this->clientResolverMock->method('getClient')->willReturnMap([[1, $this->clientMock]]);
+        $this->clientMock->expects(self::once())->method('createIndex')->with($name, []);
 
         $index = $this->indexOperations->createIndex('vue', $this->storeMock);
         $this->assertEquals($indexMock, $index);
@@ -188,7 +166,7 @@ class IndexOperationsTest extends TestCase
 
     public function testCreateIndexUsesItsSingleMapping(): void
     {
-        $mapping = $this->createMock(\Divante\VsbridgeIndexerCore\Api\MappingInterface::class);
+        $mapping = $this->createStub(\Divante\VsbridgeIndexerCore\Api\MappingInterface::class);
         $properties = ['properties' => ['sku' => ['type' => 'keyword']]];
         $mapping->method('getMappingProperties')->willReturn($properties);
         $this->storeMock->method('getId')->willReturn(1);
@@ -197,9 +175,12 @@ class IndexOperationsTest extends TestCase
         $this->esIndexSettingsMock->method('createIndexName')->willReturn('products_new');
         $this->esIndexSettingsMock->method('getEsConfig')->willReturn([]);
         $this->clientResolverMock->method('getClient')->willReturn($this->clientMock);
-        $this->indexFactoryMock->method('create')->with([
-            'name' => 'products_new', 'alias' => 'products', 'mapping' => $mapping,
-        ])->willReturn(new Index('products_new', 'products', $mapping));
+        $this->indexFactoryMock->method('create')->willReturnMap([
+            [
+                ['name' => 'products_new', 'alias' => 'products', 'mapping' => $mapping],
+                new Index('products_new', 'products', $mapping),
+            ],
+        ]);
         $this->clientMock->expects(self::once())->method('putMapping')->with('products_new', $properties);
 
         self::assertSame($mapping, $this->indexOperations->createIndex('product', $this->storeMock)->getMapping());
@@ -217,7 +198,7 @@ class IndexOperationsTest extends TestCase
             ], $actions);
             $calls[] = 'alias';
         });
-        $this->clientMock->method('deleteIndex')->with('old')->willReturnCallback(static function () use (&$calls) {
+        $this->clientMock->expects(self::once())->method('deleteIndex')->with('old')->willReturnCallback(static function () use (&$calls) {
             $calls[] = 'delete';
         });
         $this->indexOperations->switchIndexer(1, 'new', 'products');
@@ -243,12 +224,13 @@ class IndexOperationsTest extends TestCase
         $bulk = (new \Divante\VsbridgeIndexerCore\Index\BulkRequest())->addDocuments('products', [1 => []]);
         $this->indexOperations->executeBulk(1, $bulk);
     }
-    /** @dataProvider healthStatuses */
+
+    #[DataProvider('healthStatuses')]
     public function testHealthPolicy(string $status): void
     {
         $this->optimizationSettingsMock->method('checkClusterHealth')->willReturn(true);
         $this->clientResolverMock->method('getClient')->willReturn($this->clientMock);
-        $this->clientMock->method('getClustersHealth')->willReturn([['status' => $status]]);
+        $this->clientMock->expects(self::once())->method('getClustersHealth')->willReturn([['status' => $status]]);
         $this->clientMock->method('bulk')->willReturn(['errors' => false, 'items' => []]);
         $this->bulkResponseFactoryMock->method('create')->willReturn(new \Divante\VsbridgeIndexerCore\Index\BulkResponse(['errors' => false, 'items' => []]));
         if ($status !== 'green') {

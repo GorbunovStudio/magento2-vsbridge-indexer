@@ -20,7 +20,7 @@ class ClientTest extends TestCase
     private function client($result, ?array &$requests = null): Client
     {
         $requests = [];
-        $transport = $this->createMock(TransportInterface::class);
+        $transport = $this->createStub(TransportInterface::class);
         $transport->method('sendRequest')->willReturnCallback(
             static function ($method, $uri, $params, $body) use ($result, &$requests) {
                 $requests[] = [$method, $uri, $params, $body];
