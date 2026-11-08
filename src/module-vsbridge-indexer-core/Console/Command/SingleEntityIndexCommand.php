@@ -8,6 +8,7 @@
 
 namespace Divante\VsbridgeIndexerCore\Console\Command;
 
+use Divante\VsbridgeIndexerCore\Api\SingleEntityValidatorInterface;
 use Divante\VsbridgeIndexerCore\Indexer\StoreManager;
 use Magento\Framework\App\ObjectManagerFactory;
 use Magento\Framework\Indexer\IndexerInterface;
@@ -40,12 +41,21 @@ class SingleEntityIndexCommand extends AbstractIndexerCommand
     private $storeManager;
 
     /**
+     * Validator class names keyed by indexer code
+     *
+     * @var string[]
+     */
+    private $entityValidators;
+
+    /**
      * RebuildEsIndexCommand constructor.
      *
      * @param ObjectManagerFactory $objectManagerFactory
+     * @param string[] $entityValidators
      */
-    public function __construct(ObjectManagerFactory $objectManagerFactory)
+    public function __construct(ObjectManagerFactory $objectManagerFactory, array $entityValidators = [])
     {
+        $this->entityValidators = $entityValidators;
         parent::__construct($objectManagerFactory);
     }
 
@@ -107,6 +117,8 @@ class SingleEntityIndexCommand extends AbstractIndexerCommand
         $indexer = $this->getIndex($index);
 
         if ($indexer) {
+            $this->validateEntity($index, (string)$id);
+
             $message = "\nIndex: " . $indexer->getTitle() .
                 "\nStore: " . $store->getName() .
                 "\nID: " . $id;
@@ -139,6 +151,22 @@ class SingleEntityIndexCommand extends AbstractIndexerCommand
         }
 
         return null;
+    }
+
+    /**
+     * @param string $indexerCode
+     * @param string $entityId
+     *
+     * @return void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function validateEntity(string $indexerCode, string $entityId)
+    {
+        if (isset($this->entityValidators[$indexerCode])) {
+            /** @var SingleEntityValidatorInterface $validator */
+            $validator = $this->getObjectManager()->get($this->entityValidators[$indexerCode]);
+            $validator->validate($entityId);
+        }
     }
 
     /**

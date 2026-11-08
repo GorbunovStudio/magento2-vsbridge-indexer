@@ -4,8 +4,6 @@ namespace Divante\VsbridgeIndexerCatalog\Model\Indexer\Action;
 
 use Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Category as ResourceModel;
 use Divante\VsbridgeIndexerCore\Indexer\RebuildActionInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Phrase;
 
 /**
  * Class Category
@@ -32,23 +30,19 @@ class Category implements RebuildActionInterface
      * @param array $categoryIds
      *
      * @return \Generator
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function rebuild(int $storeId, array $categoryIds): \Traversable
     {
         $lastCategoryId = 0;
 
         if (!empty($categoryIds)) {
-            $resolvedCategoryIds = $this->resourceModel->getParentIds($categoryIds);
+            $categoryIds = $this->resourceModel->getParentIds($categoryIds);
 
-            if (empty($resolvedCategoryIds)) {
-                throw new NoSuchEntityException(new Phrase(
-                    'No categories found for the requested IDs: %1.',
-                    [implode(', ', $categoryIds)]
-                ));
+            // None of the requested categories exist anymore (e.g. deleted ones): export nothing,
+            // so the caller can still remove their stale documents. An empty filter would mean full export.
+            if (empty($categoryIds)) {
+                return;
             }
-
-            $categoryIds = $resolvedCategoryIds;
         }
 
         do {

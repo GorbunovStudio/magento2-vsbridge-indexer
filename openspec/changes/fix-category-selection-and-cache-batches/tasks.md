@@ -23,3 +23,12 @@
 - [x] 4.1 Audit all package console commands and update incompatible overrides to `execute(): int`, declaring `configure(): void` consistently without changing command behavior.
 - [x] 4.2 Remove the Console compatibility skip and verify all three commands load/register on the installed Console 7; run the missing-category command regression directly.
 - [x] 4.3 Run isolated checks, update verification results, and leave the expanded scope ready for user review and commit.
+
+## 5. Deleted-category correction (#37156 review)
+
+Supersedes the generator exception from 2.1 and the row-path failure expectations from 1.2 and 1.3.
+
+- [x] 5.1 Return no documents for an unresolved nonempty selection without a page query, keeping full, mixed, and parent-expanded exports unchanged.
+- [x] 5.2 Add a row-indexing regression through `Base`, `Rows`, the category action, and the indexer handler: deleted-only, several deleted, and deleted unassigned root batches write nothing, clean up the requested IDs, and dispatch the success event; mixed and existing batches stay bounded.
+- [x] 5.3 Move the missing-category failure to `vsbridge:index` through a per-indexer validator registered by the catalog module; verify a nonzero result and readable error before the generator, cleanup, and event, and a successful run for an existing category.
+- [x] 5.4 Run the regressions against the PR head and baseline category actions and record which fail there; run the full isolated unit suite and validate this change.
