@@ -4,7 +4,7 @@
     <virtualType name="Divante\VsbridgeIndexerAgreement\Model\Indexer\Agreement"
                  type="Divante\VsbridgeIndexerCore\Indexer\Base">
         <arguments>
-            <argument name="typeName" xsi:type="string">agreement</argument>
+            <argument name="entityName" xsi:type="string">agreement</argument>
         </arguments>
     </virtualType>
 

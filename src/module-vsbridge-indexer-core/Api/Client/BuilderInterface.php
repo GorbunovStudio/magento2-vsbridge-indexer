@@ -16,7 +16,7 @@ interface BuilderInterface
     /**
      * @param array $options
      *
-     * @return \Elasticsearch\Client
+     * @return \OpenSearch\Client
      */
     public function build(array $options = []);
 }

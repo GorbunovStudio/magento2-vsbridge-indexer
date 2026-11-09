@@ -68,12 +68,11 @@ class BulkResponse implements BulkResponseInterface
         $errorByReason = [];
 
         foreach ($this->getErrorItems() as $item) {
-            $operationType = current(array_keys($item));
+            $operationType = array_key_first($item);
             $itemData = $item[$operationType];
             $index = $itemData['_index'];
-            $documentType = $itemData['_type'];
             $errorData = $itemData['error'];
-            $errorKey = $operationType . $errorData['type'] . $errorData['reason'] . $index . $documentType;
+            $errorKey = json_encode([$operationType, $errorData['type'], $errorData['reason'], $index]);
 
             if (!isset($errorByReason[$errorKey])) {
                 $errorByReason[$errorKey] = $this->prepareErrorByReason($item);
@@ -93,13 +92,12 @@ class BulkResponse implements BulkResponseInterface
      */
     private function prepareErrorByReason(array $item)
     {
-        $operationType = current(array_keys($item));
+        $operationType = array_key_first($item);
         $itemData = $item[$operationType];
         $errorData = $itemData['error'];
 
         return [
             'index' => $itemData['_index'],
-            'document_type' => $itemData['_type'],
             'operation' => $operationType,
             'error' => [
                 'type' => $errorData['type'],

@@ -75,13 +75,6 @@ interface ClientInterface
     public function getIndexSettings(string $indexName): array;
 
     /**
-     * Retrieve max queue size for master node
-     *
-     * @return int
-     */
-    public function getMasterMaxQueueSize(): int;
-
-    /**
      * @param array $aliasActions
      *
      * @return void
@@ -114,12 +107,11 @@ interface ClientInterface
 
     /**
      * @param string $indexName
-     * @param string $type
      * @param array  $mapping
      *
      * @throws ConnectionDisabledException
      */
-    public function putMapping(string $indexName, string $type, array $mapping);
+    public function putMapping(string $indexName, array $mapping);
 
     /**
      * @param array $params

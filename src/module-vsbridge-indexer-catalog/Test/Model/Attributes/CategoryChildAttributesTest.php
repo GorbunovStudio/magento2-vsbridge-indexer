@@ -30,7 +30,7 @@ class CategoryChildAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->objectManager = new ObjectManager($this);
         $this->catalogConfigMock = $this->createMock(CategoryConfigInterface::class);
@@ -46,7 +46,7 @@ class CategoryChildAttributesTest extends \PHPUnit\Framework\TestCase
      *
      * @dataProvider provideAllowedAttributes
      */
-    public function testGetChildrenRequiredAttributes(int $storeId, array $selectedAttributes)
+    public function testGetChildrenRequiredAttributes(int $storeId, array $selectedAttributes): void
     {
         $attributes = CategoryAttributes::MINIMAL_ATTRIBUTE_SET;
 
@@ -65,7 +65,7 @@ class CategoryChildAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetAllAttributes()
+    public function testGetAllAttributes(): void
     {
         $storeId = 1;
 
@@ -80,12 +80,12 @@ class CategoryChildAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array
      */
-    public function provideAllowedAttributes()
+    public static function provideAllowedAttributes(): array
     {
         return [
             [
                 'storeId' => 1,
-                'attributes' => [
+                'selectedAttributes' => [
                     'name',
                     'is_active',
                     'url_path',
@@ -94,7 +94,7 @@ class CategoryChildAttributesTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 'storeId' => 1,
-                'attributes' => [
+                'selectedAttributes' => [
                     'image',
                 ]
             ]

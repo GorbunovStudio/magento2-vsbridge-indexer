@@ -34,7 +34,7 @@ class ResetEsIndexCommand extends AbstractIndexerCommand
     /**
      * @inheritdoc
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('vsbridge:reset')
             ->setDescription('Resets vsbridge indices status to invalid');
@@ -45,7 +45,7 @@ class ResetEsIndexCommand extends AbstractIndexerCommand
     /**
      * @inheritdoc
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->invalidateIndices($output);
 

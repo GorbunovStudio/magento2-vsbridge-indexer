@@ -16,16 +16,12 @@
                 <label>General Settings</label>
                 <field id="enable" translate="label comment" type="select" sortOrder="21" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable VS Bridge</label>
-                    <comment>Enable to run indexes with Elasticsearch.</comment>
+                    <comment>Enable to run indexes with OpenSearch.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="es_version" translate="label comment" type="select" sortOrder="21" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>ES Version</label>
-                    <source_model>Divante\VsbridgeIndexerCore\Model\Adminhtml\System\Config\Source\Version</source_model>
                 </field>
                 <field id="allowed_stores" translate="label comment" type="multiselect" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>List of stores to reindex</label>
-                    <comment>For every store view separated index is created in Elastic</comment>
+                    <comment>For every store view separated index is created in OpenSearch</comment>
                     <source_model>Magento\Config\Model\Config\Source\Store</source_model>
                     <depends>
                         <field id="enable">1</field>
@@ -34,24 +30,24 @@
             </group>
 
             <group id="es_client" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Elasticsearch Client</label>
+                <label>OpenSearch Client</label>
                 <depends>
                     <field id="vsbridge_indexer_settings/general_settings/enable">1</field>
                 </depends>
                 <field id="host" translate="label comment" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Elasticsearch host</label>
+                    <label>OpenSearch host</label>
                 </field>
                 <field id="port" translate="label comment" type="text" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Elasticsearch port number</label>
+                    <label>OpenSearch port number</label>
                 </field>
                 <field id="enable_https_mode" translate="label comment" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Use HTTPS</label>
-                    <comment>Select yes if you want to connect to your Elasticsearch server over HTTPS.</comment>
+                    <comment>Select yes if you want to connect to your OpenSearch server over HTTPS.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="enable_http_auth" translate="label comment" type="select" sortOrder="41" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable basic HTTP authentication</label>
-                    <comment>Enable this option when your Elasticsearch server use basic HTTP authentication.</comment>
+                    <comment>Enable this option when your OpenSearch server use basic HTTP authentication.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="auth_user" translate="label comment" type="text" sortOrder="51" showInDefault="1" showInWebsite="1" showInStore="1">

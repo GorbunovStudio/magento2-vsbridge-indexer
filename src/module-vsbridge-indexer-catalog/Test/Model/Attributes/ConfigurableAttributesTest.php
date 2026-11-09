@@ -29,7 +29,7 @@ class ConfigurableAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->objectManager = new ObjectManager($this);
         $this->catalogConfigMock = $this->createMock(CatalogConfigurationInterface::class);
@@ -45,7 +45,7 @@ class ConfigurableAttributesTest extends \PHPUnit\Framework\TestCase
      *
      * @dataProvider provideAllowedAttributes
      */
-    public function testGetChildrenRequiredAttributes(int $storeId, array $selectedAttributes)
+    public function testGetChildrenRequiredAttributes(int $storeId, array $selectedAttributes): void
     {
         $attributes = ConfigurableAttributes::MINIMAL_ATTRIBUTE_SET;
 
@@ -64,7 +64,7 @@ class ConfigurableAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetAllAttributes()
+    public function testGetAllAttributes(): void
     {
         $storeId = 1;
 
@@ -79,12 +79,12 @@ class ConfigurableAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array
      */
-    public function provideAllowedAttributes()
+    public static function provideAllowedAttributes(): array
     {
         return [
             [
                 'storeId' => 1,
-                'attributes' => [
+                'selectedAttributes' => [
                     'sku',
                     'status',
                     'visibility',
@@ -94,7 +94,7 @@ class ConfigurableAttributesTest extends \PHPUnit\Framework\TestCase
             ],
             [
                 'storeId' => 1,
-                'attributes' => [
+                'selectedAttributes' => [
                     'tax_class_id',
                 ]
             ]

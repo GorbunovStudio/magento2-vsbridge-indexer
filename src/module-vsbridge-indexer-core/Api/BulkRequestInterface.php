@@ -40,19 +40,17 @@ interface BulkRequestInterface
      * $data format have to be an array of all documents with document id as key.
      *
      * @param string $index Index the documents have to be added to.
-     * @param string  $type  Document type.
-     * @param array          $data  Document data.
+     * @param array $data Document data.
      *
      * @return \Divante\VsbridgeIndexerCore\Api\BulkRequestInterface
      */
-    public function addDocuments($index, $type, array $data);
+    public function addDocuments($index, array $data);
 
     /**
      * @param string $index
-     * @param string $type
      * @param array $docIds
      *
      * @return \Divante\VsbridgeIndexerCore\Api\BulkRequestInterface
      */
-    public function deleteDocuments($index, $type, array $docIds);
+    public function deleteDocuments($index, array $docIds);
 }

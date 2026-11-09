@@ -3,7 +3,7 @@
     <virtualType name="Divante\VsbridgeIndexerTax\Model\Indexer\TaxRules"
                  type="Divante\VsbridgeIndexerCore\Indexer\Base">
         <arguments>
-            <argument name="typeName" xsi:type="string">taxrule</argument>
+            <argument name="entityName" xsi:type="string">taxrule</argument>
         </arguments>
     </virtualType>
 

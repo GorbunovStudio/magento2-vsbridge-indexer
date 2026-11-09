@@ -31,7 +31,7 @@ class Data extends DataConfig
         Reader $reader,
         CacheInterface $cache,
         string $cacheId = self::CACHE_ID,
-        SerializerInterface $serializer = null
+        ?SerializerInterface $serializer = null
     ) {
         parent::__construct($reader, $cache, $cacheId, $serializer);
     }

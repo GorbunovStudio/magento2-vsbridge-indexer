@@ -29,7 +29,7 @@ class ProductAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->objectManager = new ObjectManager($this);
         $this->catalogConfigMock = $this->createMock(CatalogConfigurationInterface::class);
@@ -45,7 +45,7 @@ class ProductAttributesTest extends \PHPUnit\Framework\TestCase
      *
      * @dataProvider provideAllowedAttributes
      */
-    public function testGetAttributes(int $storeId, array $selectedAttributes)
+    public function testGetAttributes(int $storeId, array $selectedAttributes): void
     {
         $attributes = ProductAttributes::REQUIRED_ATTRIBUTES;
         $this->catalogConfigMock->expects($this->once())
@@ -63,7 +63,7 @@ class ProductAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      *
      */
-    public function testGetAllAttributes()
+    public function testGetAllAttributes(): void
     {
         $storeId = 2;
 
@@ -79,12 +79,12 @@ class ProductAttributesTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array
      */
-    public function provideAllowedAttributes()
+    public static function provideAllowedAttributes(): array
     {
         return [
             [
                 'storeId' => 1,
-                'attributes' => [
+                'selectedAttributes' => [
                     'sku',
                     'url_path',
                     'url_key',

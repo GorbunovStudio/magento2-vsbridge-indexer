@@ -3,7 +3,7 @@
 namespace Divante\VsbridgeIndexerCore\Index;
 
 use Divante\VsbridgeIndexerCore\Api\IndexInterface;
-use Divante\VsbridgeIndexerCore\Api\Index\TypeInterface;
+use Divante\VsbridgeIndexerCore\Api\MappingInterface;
 
 /**
  * Class Index
@@ -18,11 +18,11 @@ class Index implements IndexInterface
     private $name;
 
     /**
-     * Index types.
+     * Index mapping.
      *
-     * @var TypeInterface[]
+     * @var MappingInterface|null
      */
-    private $types;
+    private $mapping;
 
     /**
      * Index alias
@@ -36,16 +36,16 @@ class Index implements IndexInterface
      *
      * @param string $name
      * @param string $alias
-     * @param array $types
+     * @param MappingInterface|null $mapping
      */
     public function __construct(
         string $name,
         string $alias,
-        array $types
+        ?MappingInterface $mapping = null
     ) {
         $this->alias = $alias;
         $this->name = $name;
-        $this->types = $this->prepareTypes($types);
+        $this->mapping = $mapping;
     }
 
     /**
@@ -65,22 +65,6 @@ class Index implements IndexInterface
     }
 
     /**
-     * @param TypeInterface[] $types
-     *
-     * @return TypeInterface[]
-     */
-    private function prepareTypes($types)
-    {
-        $preparedTypes = [];
-
-        foreach ($types as $type) {
-            $preparedTypes[$type->getName()] = $type;
-        }
-
-        return $preparedTypes;
-    }
-
-    /**
      * @inheritdoc
      */
     public function getName()
@@ -91,20 +75,8 @@ class Index implements IndexInterface
     /**
      * @inheritdoc
      */
-    public function getTypes()
+    public function getMapping(): ?MappingInterface
     {
-        return $this->types;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getType($typeName)
-    {
-        if (!isset($this->types[$typeName])) {
-            throw new \InvalidArgumentException("Type $typeName is not available in index.");
-        }
-
-        return $this->types[$typeName];
+        return $this->mapping;
     }
 }

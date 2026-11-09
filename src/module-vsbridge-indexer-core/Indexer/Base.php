@@ -17,19 +17,19 @@ class Base implements \Magento\Framework\Indexer\ActionInterface, \Magento\Frame
     /**
      * @var string
      */
-    private $typeName;
+    private $entityName;
 
     /**
      * Base constructor.
      *
      * @param ActionFactory $actionFactory
-     * @param string $typeName
+     * @param string $entityName
      */
     public function __construct(
         ActionFactory $actionFactory,
-        string $typeName
+        string $entityName
     ) {
-        $this->typeName = $typeName;
+        $this->entityName = $entityName;
         $this->actionFactory = $actionFactory;
     }
 
@@ -38,7 +38,7 @@ class Base implements \Magento\Framework\Indexer\ActionInterface, \Magento\Frame
      */
     public function execute($ids)
     {
-        return $this->actionFactory->create('rows', $this->typeName)->execute($ids);
+        return $this->actionFactory->create('rows', $this->entityName)->execute($ids);
     }
 
     /**
@@ -46,7 +46,7 @@ class Base implements \Magento\Framework\Indexer\ActionInterface, \Magento\Frame
      */
     public function executeFull()
     {
-        return $this->actionFactory->create('full', $this->typeName)->execute([]);
+        return $this->actionFactory->create('full', $this->entityName)->execute([]);
     }
 
     /**

@@ -3,7 +3,7 @@
     <virtualType name="Divante\VsbridgeIndexerReview\Model\Indexer\Review"
                  type="Divante\VsbridgeIndexerCore\Indexer\Base">
         <arguments>
-            <argument name="typeName" xsi:type="string">review</argument>
+            <argument name="entityName" xsi:type="string">review</argument>
         </arguments>
     </virtualType>
 

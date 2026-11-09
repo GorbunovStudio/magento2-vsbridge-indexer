@@ -4,7 +4,6 @@ namespace Divante\VsbridgeIndexerCore\Indexer\Action;
 
 use Divante\VsbridgeIndexerCore\Indexer\RebuildActionPool;
 use Divante\VsbridgeIndexerCore\Indexer\StoreManager;
-use Divante\VsbridgeIndexerCore\Model\ElasticsearchResolverInterface;
 use Divante\VsbridgeIndexerCore\Indexer\GenericIndexerHandlerFactory;
 use Divante\VsbridgeIndexerCore\Api\EventInterface;
 use Magento\Framework\Event\ManagerInterface as EventManager;
@@ -15,29 +14,20 @@ use Magento\Framework\Event\ManagerInterface as EventManager;
 class Full extends AbstractAction
 {
     /**
-     * @var ElasticsearchResolverInterface
-     */
-    private $esVersionResolver;
-
-    /**
      * Full constructor.
-     * @param ElasticsearchResolverInterface $esVersionResolver
      * @param RebuildActionPool $actionPool
      * @param GenericIndexerHandlerFactory $indexerHandlerFactory
      * @param StoreManager $storeManager
-     * @param string $typeName
+     * @param string $entityName
      */
     public function __construct(
-        ElasticsearchResolverInterface $esVersionResolver,
         RebuildActionPool $actionPool,
         GenericIndexerHandlerFactory $indexerHandlerFactory,
         StoreManager $storeManager,
         private EventManager $eventManager,
-        string $typeName
+        string $entityName
     ) {
-        parent::__construct($actionPool, $indexerHandlerFactory, $storeManager, $typeName);
-
-        $this->esVersionResolver = $esVersionResolver;
+        parent::__construct($actionPool, $indexerHandlerFactory, $storeManager, $entityName);
     }
 
     /**
@@ -49,14 +39,13 @@ class Full extends AbstractAction
      */
     public function execute(array $ids)
     {
-        $esVersion = $this->esVersionResolver->getVersion();
         $stores = $this->getStores();
 
         foreach ($stores as $store) {
             $storeId = (int)$store->getId();
 
-            if ($esVersion !== ElasticsearchResolverInterface::DEFAULT_ES_VERSION) {
-                $this->getIndexerHandler()->createIndex($store);
+            if (!$this->getIndexerHandler()->createIndex($store)) {
+                continue;
             }
             
             $this->getIndexerHandler()->saveIndex(
@@ -64,15 +53,11 @@ class Full extends AbstractAction
                 $store
             );
             
-            if ($esVersion === ElasticsearchResolverInterface::DEFAULT_ES_VERSION) {
-                $this->getIndexerHandler()->cleanUpByTransactionKey($store);
-            }
-
             $this->eventManager->dispatch(
                 EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,
                 [
                     'store_id' => $storeId,
-                    'data_type' => $this->getTypeName(),
+                    'data_type' => $this->getEntityName(),
                     'entity_ids' => [],
                 ]
             );

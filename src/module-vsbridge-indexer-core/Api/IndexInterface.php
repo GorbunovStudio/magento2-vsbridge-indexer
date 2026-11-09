@@ -13,8 +13,6 @@ namespace Divante\VsbridgeIndexerCore\Api;
  */
 interface IndexInterface
 {
-    const DUMMY_INDEX_TYPE = '_doc';
-
     /**
      * Retrieve Index Name
      *
@@ -35,15 +33,7 @@ interface IndexInterface
     public function isNew();
 
     /**
-     * @return \Divante\VsbridgeIndexerCore\Api\Index\TypeInterface[]
+     * @return MappingInterface|null
      */
-    public function getTypes();
-
-    /**
-     * @param $typeName
-     *
-     * @return \Divante\VsbridgeIndexerCore\Api\Index\TypeInterface
-     * @throws \InvalidArgumentException When the type does not exists.
-     */
-    public function getType($typeName);
+    public function getMapping(): ?MappingInterface;
 }

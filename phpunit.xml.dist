@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php" colors="true" cacheResult="false">
+    <testsuites>
+        <testsuite name="core">
+            <directory>src/module-vsbridge-indexer-core/Test/Unit</directory>
+        </testsuite>
+        <testsuite name="catalog">
+            <directory>src/module-vsbridge-indexer-catalog/Test/Unit</directory>
+            <directory>src/module-vsbridge-indexer-catalog/Test/Model</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

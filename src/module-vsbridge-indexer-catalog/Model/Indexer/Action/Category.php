@@ -30,7 +30,6 @@ class Category implements RebuildActionInterface
      * @param array $categoryIds
      *
      * @return \Generator
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function rebuild(int $storeId, array $categoryIds): \Traversable
     {
@@ -38,6 +37,12 @@ class Category implements RebuildActionInterface
 
         if (!empty($categoryIds)) {
             $categoryIds = $this->resourceModel->getParentIds($categoryIds);
+
+            // None of the requested categories exist anymore (e.g. deleted ones): export nothing,
+            // so the caller can still remove their stale documents. An empty filter would mean full export.
+            if (empty($categoryIds)) {
+                return;
+            }
         }
 
         do {

@@ -18,9 +18,9 @@ class Rows extends AbstractAction
         GenericIndexerHandlerFactory $indexerHandlerFactory,
         StoreManager $storeManager,
         private EventManager $eventManager,
-        string $typeName
+        string $entityName
     ) {
-        parent::__construct($actionPool, $indexerHandlerFactory, $storeManager, $typeName);
+        parent::__construct($actionPool, $indexerHandlerFactory, $storeManager, $entityName);
     }
     
     /**
@@ -48,7 +48,7 @@ class Rows extends AbstractAction
                 EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,
                 [
                     'store_id' => $storeId,
-                    'data_type' => $this->getTypeName(),
+                    'data_type' => $this->getEntityName(),
                     'entity_ids' => $ids,
                 ]
             );

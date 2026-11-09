@@ -45,12 +45,9 @@ class IndexSettingsTest extends TestCase
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->storeManagerMock = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->setMethods([])
-            ->getMockForAbstractClass();
+        $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
 
         $this->storeMock = $this->getMockBuilder(Store::class)
             ->disableOriginalConstructor()
@@ -80,8 +77,8 @@ class IndexSettingsTest extends TestCase
         $this->indicesSettingsMock->method('getIndexIdentifier')->willReturn('code');
         $this->storeMock->method('getCode')->willReturn($storeCode);
 
-        $indexPrefix .= $identifier === IndexSettings::DUMMY_INDEX_IDENTIFIER ? '' : '_' . $identifier;
-        $expectedAlias = strtolower(sprintf('%s_%s', $indexPrefix, $storeCode));
+        $expectedAlias = strtolower($indexPrefix . '_' . $storeCode
+            . ($identifier === IndexSettings::DUMMY_INDEX_IDENTIFIER ? '' : '_' . $identifier));
 
         $this->assertEquals(
             $expectedAlias,
@@ -92,7 +89,7 @@ class IndexSettingsTest extends TestCase
     /**
      * @return array
      */
-    public function provideStores()
+    public static function provideStores()
     {
         return [
             ['vue_storefront_catalog', 'de_code'],
@@ -102,5 +99,18 @@ class IndexSettingsTest extends TestCase
             ['product', 'de_code'],
             ['product', 'DE_CODE'],
         ];
+    }
+
+    public function testDefaultStoreIdentifierCanBeOmitted(): void
+    {
+        $this->indicesSettingsMock->method('getIndexNamePrefix')->willReturn('catalog');
+        $this->indicesSettingsMock->method('addIdentifierToDefaultStoreView')->willReturn(false);
+        $this->indicesSettingsMock->method('getIndexIdentifier')->willReturn('id');
+        $this->storeManagerMock->method('getDefaultStoreView')->willReturn($this->storeMock);
+        $this->storeMock->method('getId')->willReturn(1);
+        self::assertSame('catalog_product', $this->esIndexSettings->getIndexAlias('product', $this->storeMock));
+        $otherStore = $this->createMock(\Magento\Store\Api\Data\StoreInterface::class);
+        $otherStore->method('getId')->willReturn(2);
+        self::assertSame('catalog_2_product', $this->esIndexSettings->getIndexAlias('product', $otherStore));
     }
 }

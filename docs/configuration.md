@@ -2,92 +2,33 @@
 Go to the new ‘Indexer’ section (Stores → Configuration → Vuestorefront → Indexer), available now in the in the Magento Panel, and configure it in the listed areas:
 1. ####General settings 
 
-   **Enable VS Bridge** → Enable to export data to elasticsearch. By default indexing is disable.
+   **Enable VS Bridge** → Enable to export data to OpenSearch. By default indexing is disable.
 
-    **Elasticsearch version**
-    
-    Select ES version depends on which ES you are using/is used by magento.
-    If you are using ES 5.x.x, choose Elasticsearch5, if you are using version 6.x.x or 7.x.x choose Elasticsearch6+.
-    By default Elasticsearch5 option is selected.
-    
-    **List of stores to reindex** → Select stores for which data must be exported to ElasticSearch. By default store with ID 1 is selected. For each store view, a new, separate ElasticSearch index is created.
+    OpenSearch 2.x is the only backend. The old engine selector has been removed; persisted `es_version` values are ignored.
+
+    **List of stores to reindex** → Select stores for which data must be exported to OpenSearch. By default store with ID 1 is selected. For each store view, a new, separate OpenSearch index is created.
 
     ![](./images/config-general.png)
 
-1. ####Elasticsearch Client
+1. ####OpenSearch Client
 
-   Configure connection with ElasticSearch. Provide a host, port, and set up login and password (optionally).
+   Configure connection with OpenSearch. Provide a host, port, and set up login and password (optionally).
 
    ![](./images/config-es.png)
 
 1. ####Indicies settings
  
-   **Batch Indexing Size** → select size of packages by which you intend to send data to ElasticSrearch. Depending on the project you might need to adjust package size to the number of products, attributes, configurable products variation, etc). By default Batch, Indexing Size is set up for 1000.
+   **Batch Indexing Size** → select size of packages by which you intend to send data to OpenSearch. Depending on the project you might need to adjust package size to the number of products, attributes, configurable products variation, etc). By default Batch, Indexing Size is set up for 1000.
    Indicies settings
     
-   **Index Alias Prefix** → define prefixes for ElasticSearch indexes. The panel allows adding prefix only to the catalog name e.g.: "vue_storefront_catalog". For each store (store view) index name is generated on the base of defined prefix and either ID or Store Code. Aliases cannot be created. 
-   Example: When we define following indexes: "vue_storefront_catalog_1", "vue_storefront_catalog_2", "vue_storefront_catalog_3".
-   
-   Note: change to "vue_storefront_catalog" to make it compatible with [mage2vuestorefront](https://github.com/DivanteLtd/mage2vuestorefront/) import.
-   
-   **Important**: It is crucial to update this configuration in the VSF and VSF-API (one change at the beginning of the whole configuration process).
+   **Index Alias Prefix** → prefix for all entity aliases, default `vue_storefront_catalog`.
 
-   **Index Identifier** → defines the unique store identifier to append to the ElasticSearch indexes. The default value is ID which will append the Store ID to the index name e.g.: "vue_storefront_catalog_1". You can choose to change this to Store Code which will add the Store Code to the index name e.g.: "vue_storefront_catalog_storecode".
-   
-   **Add Index Identifier to Default Store View** → defines if we should add Index Identifier to Magento Default Store View. Select "No" - to make it compatible with [mage2vuestorefront](https://github.com/DivanteLtd/mage2vuestorefront/) import. 
-      
-   ####Example with Store ID
-  
-   "vue_storefront_magento_1" - index for store view with id 1
-   
-   VSF config (base on default index prefix name: vue_storefront_magento)
-    ```json
-    "elasticsearch": {
-      "httpAuth": "",
-      "host": "localhost:8080/api/catalog",
-      "index": "vue_storefront_magento_1"
-    }
-    ```
-   
-    VSF-API config
-    ```json
-      "elasticsearch": {
-        "host": "localhost",
-        "port": 9200,
-        "user": "elastic",
-        "password": "changeme",
-        "indices": [
-          "vue_storefront_magento_1"
-        ],
-    ```
-   
-   ####Example with Store Code
-   
-   "vue_storefront_magento_en_us" - index for store view with code "en_us"
-   
-   VSF config (base on default index prefix name: vue_storefront_magento)
-    ```json
-    "elasticsearch": {
-      "httpAuth": "",
-      "host": "localhost:8080/api/catalog",
-      "index": "vue_storefront_magento_en_us"
-    }
-    ```
-   
-    VSF-API config
-    ```json
-      "elasticsearch": {
-        "host": "localhost",
-        "port": 9200,
-        "user": "elastic",
-        "password": "changeme",
-        "indices": [
-          "vue_storefront_magento_en_us"
-        ],
-    ```
-   
-   ![](./images/config-indices-settings.png)
-   
+   **Index Identifier** → append the store ID (default) or store code before the entity name. Examples: `vue_storefront_catalog_1_product`, `vue_storefront_catalog_en_category`.
+
+   **Add Index Identifier to Default Store View** → when disabled, omit the store identifier only for the default store, for example `vue_storefront_catalog_product`.
+
+   Each entity/store alias points to its current physical index. Existing entity-specific naming is preserved. Update the consuming VSF API to use these aliases and typeless requests; see the [migration guide](opensearch-migration.md). Older screenshots may show the removed Elasticsearch version selector.
+
 1. ####Redis Cache Settings
 
     **Clear cache** → Yes/No (by default this option is disabled)
@@ -102,9 +43,9 @@ Go to the new ‘Indexer’ section (Stores → Configuration → Vuestorefront 
 
 1. ####Optimization Settings
 
-    **Check cluster health** → by default this option is disabled. Used to check cluster health before indexing.
+    **Check cluster health** → disabled by default. When enabled, only green cluster status permits indexing. A single-node test cluster with replicas may be yellow.
     
-    **Check max bulk queue** → by default this option is disabled. Used to check if pending tasks + batch indexer size (VueStorefrontIndexer indices setting) are lower than max bulk queue size master node.
+    **Check max bulk queue** → unsupported with OpenSearch. Leave disabled. If an existing installation has this enabled, indexing reports an actionable error until it is disabled. The old heuristic does not measure bulk write capacity.
     
     **Change number of replicas** → by default this option is disabled. Used to set number_of_replicas=0 during indexing.
     
@@ -124,7 +65,7 @@ Go to the new ‘Indexer’ section (Stores → Configuration → Vuestorefront 
     
     **Sync Tier Prices** → by default this option is disabled. Used to sync products tier prices. 
     
-    **Types of products to index** → by default all product will be exported to ElasticSearch. This option allows for selecting certain product types that should be exported.
+    **Types of products to index** → by default all product will be exported to OpenSearch. This option allows for selecting certain product types that should be exported.
     
     **Add swatches to `product.configurable_options`** → by default No. Use to export information about swatches directly for a product type. 	 
     
@@ -152,4 +93,4 @@ Go to the new ‘Indexer’ section (Stores → Configuration → Vuestorefront 
     ![](./images/config-category.png)
 
 After updating the configuration, you can run the indexation.
-It is also worth query ElasticSearch using CURL, to be sure that the communication works.
+It is also worth query OpenSearch using CURL, to be sure that the communication works.
