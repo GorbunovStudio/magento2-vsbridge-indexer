@@ -1,8 +1,13 @@
-## ADDED Requirements
+# opensearch-client Specification
+
+## Purpose
+Define compatible OpenSearch connections, decoded response contracts, and observable operational failures for the storefront indexer.
+
+## Requirements
 
 ### Requirement: Consistent OpenSearch dependencies
 
-The root package and all seven module packages SHALL replace their direct Elasticsearch PHP requirements with a consistent OpenSearch PHP constraint, initially version 2.4.5. Their declared runtime requirements MUST accommodate the selected client, including a PHP floor of at least 8.1. The integration SHALL declare the HTTP implementation dependencies it uses explicitly.
+The root package and all seven module packages SHALL replace their direct Elasticsearch PHP requirements with the consistent OpenSearch PHP constraint `^2.4.2`. The #37156 Magento release locks client 2.4.2. Their declared runtime requirements MUST accommodate the selected client, including a PHP floor of at least 8.1. The integration SHALL declare the HTTP implementation dependencies it uses explicitly.
 
 #### Scenario: Installing the indexer
 - **WHEN** the root or a published module package is installed in a documented supported Magento/PHP environment

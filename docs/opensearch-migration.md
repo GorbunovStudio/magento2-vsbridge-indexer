@@ -4,7 +4,7 @@ This release targets OpenSearch 2.x directly. Elasticsearch backends, mapping ty
 
 ## Runtime and validation
 
-The client is pinned to `opensearch-project/opensearch-php:2.4.5`. The packages require PHP `^8.1`, Guzzle `^7.5`, and Guzzle PSR-7 `^2.7`; Magento can impose a stricter PHP requirement. Composer successfully resolved the current environment with Magento Framework 103.0.9 and PHP 8.5.6, without upgrading unrelated packages. The stale Elasticsearch 5 lockfile inside the core library was removed; the development checkout's root lockfile is the dependency snapshot.
+The client constraint is `opensearch-project/opensearch-php:^2.4.2`. The #37156 Magento release locks client 2.4.2 and selects OpenSearch server 2.15.0 on PHP 8.2, without a Magento core upgrade. The packages require PHP `^8.1`, Guzzle `^7.5`, and Guzzle PSR-7 `^2.7`; Magento can impose a stricter PHP requirement. Earlier standalone evidence below used client 2.4.5, Magento Framework 103.0.9, and PHP 8.5.6; it does not certify that Magento/PHP combination for this release. The stale Elasticsearch 5 lockfile inside the core library was removed; the consuming Magento lockfile is the release dependency snapshot.
 
 Validation on 2026-10-19: PHPUnit 10.5.66 core suite passed 32 tests / 61 assertions; the lifecycle fixture passed 1 test / 173 assertions; the demo HTTPS/auth fixture passed 1 test / 4 assertions.
 
