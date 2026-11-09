@@ -95,7 +95,7 @@ Configure the module in Magento panel and run full indexation.
 
 ### OpenSearch connection and aliases
 
-This version targets OpenSearch 2.x using `opensearch-project/opensearch-php:^2.4.2`. The #37156 Magento release locks client 2.4.2 and uses OpenSearch 2.15.0. Elasticsearch support and the engine version selector have been removed. Existing connection configuration paths are preserved.
+This version targets OpenSearch 2.x using `opensearch-project/opensearch-php:^2.4.2`. The #37156 Magento release locks client 2.4.2. Development recipes and isolated integration evidence use OpenSearch 2.15.0; the existing production infrastructure is recorded in #37156 as OpenSearch 2.19.7, with application acceptance still pending. This release does not select a production downgrade. Elasticsearch support and the engine version selector have been removed. Existing connection configuration paths are preserved.
 
 Each entity and store has its own alias, for example `vue_storefront_catalog_1_product` and `vue_storefront_catalog_1_category`. Physical indexes are built separately and published through these aliases. Configure the consuming VSF API to use typeless requests and the corresponding entity aliases.
 
