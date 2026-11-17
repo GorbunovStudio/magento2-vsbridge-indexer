@@ -1,16 +1,18 @@
 # Migrating to OpenSearch
 
-This release targets OpenSearch 2.x directly. Elasticsearch backends, mapping types, and the shared Elasticsearch 5 index layout have been removed. Rebuild fresh indexes from Magento; this procedure does not upgrade cluster snapshots in place.
+This release targets OpenSearch 2.x and 3.x directly. Elasticsearch backends, mapping types, and the shared Elasticsearch 5 index layout have been removed. Rebuild fresh indexes from Magento; this procedure does not upgrade cluster snapshots in place.
 
 ## Runtime and validation
 
-The client constraint is `opensearch-project/opensearch-php:^2.4.2`. The #37156 Magento release locks client 2.4.2 on PHP 8.2, without a Magento core upgrade. Development recipes and isolated integration evidence use OpenSearch server 2.15.0. The existing production infrastructure is recorded in #37156 as OpenSearch 2.19.7; application-level acceptance on that target remains separate from connectivity checks, and no production downgrade is selected. The packages require PHP `^8.1`, Guzzle `^7.5`, and Guzzle PSR-7 `^2.7`; Magento can impose a stricter PHP requirement. Earlier standalone evidence below used client 2.4.5, Magento Framework 103.0.9, and PHP 8.5.6; it does not certify that Magento/PHP combination for this release. The stale Elasticsearch 5 lockfile inside the core library was removed; the consuming Magento lockfile is the release dependency snapshot.
+The client constraint is `opensearch-project/opensearch-php:^2.4.2`. The #37156 Magento release locked client 2.4.2 on PHP 8.2; the Magento 2.4.9 release (#37167) locks client 2.7.1 on PHP 8.5. Isolated integration evidence uses OpenSearch server 3.9.0 (#37169; 2.15.0 before). Production has run OpenSearch 3.9.0 since 2026-11-17. The packages require PHP `^8.1`, Guzzle `^7.5`, and Guzzle PSR-7 `^2.7`; Magento can impose a stricter PHP requirement. Earlier standalone evidence below used client 2.4.5, Magento Framework 103.0.9, and PHP 8.5.6; it does not certify that Magento/PHP combination for this release. The stale Elasticsearch 5 lockfile inside the core library was removed; the consuming Magento lockfile is the release dependency snapshot.
 
 Validation on 2026-10-19: PHPUnit 10.5.66 core suite passed 32 tests / 61 assertions; the lifecycle fixture passed 1 test / 173 assertions; the demo HTTPS/auth fixture passed 1 test / 4 assertions.
 
 Type API cleanup validated on 2026-10-21: 33 core unit tests / 64 assertions and the updated OpenSearch 2.15.0 lifecycle test / 173 assertions passed.
 
-The focused core PHPUnit suite and the isolated OpenSearch 2.15.0 integration fixture exercise the client, actual built-in mappings (including product additions), repeated rebuild/rollover across two stores, incremental changes, bulk deletion, transaction-key cleanup, bulk mapping failure, and temporary settings restoration. Magento database/data-provider inputs are fixtures and mocks. A deployed Magento database, generated DI compilation, store-specific EAV mappings, external VSF API, and production certificates still require staging validation. Other OpenSearch 2.x versions are a target, not independently certified versions.
+OpenSearch 3.9.0 fixture validated on 2026-11-17 (#37169) with PHP 8.5.12, PHPUnit 12.5.42 and the Magento 2.4.9 dependency lock (client 2.7.1): the lifecycle fixture passed 1 test / 173 assertions; the demo HTTPS/auth fixture passed 1 test / 4 assertions.
+
+The focused core PHPUnit suite and the isolated OpenSearch 3.9.0 integration fixture exercise the client, actual built-in mappings (including product additions), repeated rebuild/rollover across two stores, incremental changes, bulk deletion, transaction-key cleanup, bulk mapping failure, and temporary settings restoration. Magento database/data-provider inputs are fixtures and mocks. A deployed Magento database, generated DI compilation, store-specific EAV mappings, external VSF API, and production certificates still require staging validation. Other OpenSearch 2.x and 3.x versions are a target, not independently certified versions.
 
 ## Configuration and compatibility
 
@@ -39,7 +41,7 @@ Indexers, action factories, and DI arguments use `entityName` instead of `typeNa
 ## Deployment
 
 1. Confirm the chosen Magento/PHP installation can resolve these dependencies and the consuming VSF API supports typeless OpenSearch requests and entity-specific aliases. Reader compatibility is a production prerequisite; indexer tests cannot certify external applications.
-2. Provision a separate OpenSearch 2.x destination and configure the indexer's existing host, port, HTTPS, and authentication settings. Verify certificates and permissions for indexing, mappings, aliases, settings, deletion, and any enabled health monitoring.
+2. Provision a separate OpenSearch 2.x or 3.x destination and configure the indexer's existing host, port, HTTPS, and authentication settings. Verify certificates and permissions for indexing, mappings, aliases, settings, deletion, and any enabled health monitoring.
 3. Deploy the module and run `bin/magento setup:upgrade` and the normal generated DI/cache deployment steps for the installation.
 4. In staging, run `bin/magento vsbridge:reindex --all` (or `--store=<id-or-code>`) for enabled stores. Rebuild again to check alias rollover. A failed entity rebuild now propagates failure instead of printing an overall success message.
 5. Verify counts, representative dates/numbers, configurable children, category trees, dynamic EAV fields, observer-added mapping fields, and storefront queries. Exercise scheduled/incremental changes, removals, cache invalidation, and optional health checks.

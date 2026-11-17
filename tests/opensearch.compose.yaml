@@ -1,6 +1,6 @@
 services:
   opensearch:
-    image: opensearchproject/opensearch:2.15.0
+    image: opensearchproject/opensearch:3.9.0
     environment:
       discovery.type: single-node
       DISABLE_SECURITY_PLUGIN: "true"
@@ -10,7 +10,7 @@ services:
       - "127.0.0.1:19200:9200"
   secure:
     profiles: ["tls"]
-    image: opensearchproject/opensearch:2.15.0
+    image: opensearchproject/opensearch:3.9.0
     environment:
       discovery.type: single-node
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: "Local-OpenSearch-2-Test!"

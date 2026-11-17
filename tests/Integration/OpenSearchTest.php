@@ -40,7 +40,7 @@ class OpenSearchTest extends TestCase
         }
         $url = parse_url($endpoint);
         $raw = (new ClientBuilder())->build(['host' => $url['host'], 'port' => $url['port'] ?? 9200, 'scheme' => $url['scheme']]);
-        self::assertSame('2.15.0', $raw->info()['version']['number']);
+        self::assertSame('3.9.0', $raw->info()['version']['number']);
         $client = new Client($raw);
         $prefix = 'vsbridge_test_' . bin2hex(random_bytes(4));
         $maps = $this->mappings();
