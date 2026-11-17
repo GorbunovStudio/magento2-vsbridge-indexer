@@ -35,7 +35,7 @@ class DemoTlsTest extends TestCase
             'auth' => ['admin', 'Local-OpenSearch-2-Test!'],
             'verify' => false,
         ]);
-        self::assertSame('2.15.0', $raw->info()['version']['number']);
+        self::assertSame('3.9.0', $raw->info()['version']['number']);
         self::assertNotEmpty((new Client($raw))->getClustersHealth());
         $wrongPassword = (new GuzzleClientFactory())->create([
             'base_uri' => $endpoint,

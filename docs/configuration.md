@@ -4,7 +4,7 @@ Go to the new ‘Indexer’ section (Stores → Configuration → Vuestorefront 
 
    **Enable VS Bridge** → Enable to export data to OpenSearch. By default indexing is disable.
 
-    OpenSearch 2.x is the only backend. The old engine selector has been removed; persisted `es_version` values are ignored.
+    OpenSearch (2.x or 3.x) is the only backend. The old engine selector has been removed; persisted `es_version` values are ignored.
 
     **List of stores to reindex** → Select stores for which data must be exported to OpenSearch. By default store with ID 1 is selected. For each store view, a new, separate OpenSearch index is created.
 

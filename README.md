@@ -22,7 +22,7 @@ Pull Requests should be made against 1.x branch. Changes from this branch won't 
 Only fixes will be accepted.
 
 ### Version 2.0
-Supports OpenSearch 2.x with one index per entity and store.
+Supports OpenSearch 2.x and 3.x with one index per entity and store.
 
 ##### To read what changed click [here](CHANGELOG.MD#20)
  
@@ -95,7 +95,7 @@ Configure the module in Magento panel and run full indexation.
 
 ### OpenSearch connection and aliases
 
-This version targets OpenSearch 2.x using `opensearch-project/opensearch-php:^2.4.2`. The #37156 Magento release locks client 2.4.2. Development recipes and isolated integration evidence use OpenSearch 2.15.0; the existing production infrastructure is recorded in #37156 as OpenSearch 2.19.7, with application acceptance still pending. This release does not select a production downgrade. Elasticsearch support and the engine version selector have been removed. Existing connection configuration paths are preserved.
+This version targets OpenSearch 2.x and 3.x using `opensearch-project/opensearch-php:^2.4.2`. The Magento 2.4.9 release (#37167) locks client 2.7.1. Isolated integration evidence uses OpenSearch 3.9.0 (#37169; 2.15.0 before). Production has run OpenSearch 3.9.0 since 2026-11-17. Elasticsearch support and the engine version selector have been removed. Existing connection configuration paths are preserved.
 
 Each entity and store has its own alias, for example `vue_storefront_catalog_1_product` and `vue_storefront_catalog_1_category`. Physical indexes are built separately and published through these aliases. Configure the consuming VSF API to use typeless requests and the corresponding entity aliases.
 
@@ -160,8 +160,8 @@ If you need a list off all available index-names, you can use `php bin/magento i
      
 ### Compatibility
 
-- OpenSearch server: 2.x target; integration checks run against 2.15.0.
-- OpenSearch PHP client: `^2.4.2`; the #37156 Magento release locks 2.4.2. Earlier standalone integration evidence used 2.4.5. PHP 8.1+ is required, subject to Magento's stricter PHP requirements.
+- OpenSearch server: 2.x and 3.x; integration checks run against 3.9.0 (2.15.0 before #37169).
+- OpenSearch PHP client: `^2.4.2`; the Magento 2.4.9 release locks 2.7.1 (2.4.2 in #37156). Earlier standalone integration evidence used 2.4.5. PHP 8.1+ is required, subject to Magento's stricter PHP requirements.
 - Dependency resolution/platform checks: PHP 8.5.6 with Magento Framework 103.0.9. This is not certification of a complete Magento installation or of every historical Magento version.
 - Storefront compatibility must be checked separately. Older VSF API versions may send mapping types that OpenSearch rejects.
 
