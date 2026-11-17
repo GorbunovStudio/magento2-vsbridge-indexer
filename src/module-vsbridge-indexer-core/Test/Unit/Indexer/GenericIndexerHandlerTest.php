@@ -14,23 +14,24 @@ use Divante\VsbridgeIndexerCore\Indexer\GenericIndexerHandler;
 use Divante\VsbridgeIndexerCore\Logger\IndexerLogger;
 use Magento\Framework\Indexer\SaveHandler\Batch;
 use Magento\Store\Api\Data\StoreInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class GenericIndexerHandlerTest extends TestCase
 {
     private function handler($operations, $logger = null): GenericIndexerHandler
     {
-        $providers = $this->createMock(DataProviderResolverInterface::class);
-        $providers->method('getDataProviders')->with('product')->willReturn([]);
-        $transaction = $this->createMock(TransactionKeyInterface::class);
+        $providers = $this->createStub(DataProviderResolverInterface::class);
+        $providers->method('getDataProviders')->willReturnMap([['product', []]]);
+        $transaction = $this->createStub(TransactionKeyInterface::class);
         $transaction->method('load')->willReturn('current');
-        return new GenericIndexerHandler($providers, $this->createMock(BulkLoggerInterface::class),
+        return new GenericIndexerHandler($providers, $this->createStub(BulkLoggerInterface::class),
             $logger ?? new IndexerLogger('test'), $operations, new Batch(), $transaction, 'product');
     }
 
     private function store(): StoreInterface
     {
-        $store = $this->createMock(StoreInterface::class);
+        $store = $this->createStub(StoreInterface::class);
         $store->method('getId')->willReturn(1);
         return $store;
     }
@@ -82,7 +83,7 @@ class GenericIndexerHandlerTest extends TestCase
         }
     }
 
-    /** @dataProvider cleanupSelections */
+    #[DataProvider('cleanupSelections')]
     public function testCleanupIsTypelessAndScoped(?array $ids): void
     {
         $operations = $this->createMock(IndexOperationInterface::class);
@@ -131,12 +132,12 @@ class GenericIndexerHandlerTest extends TestCase
         $indexer->expects(self::once())->method('saveIndex');
         $factory = $this->createMock(\Divante\VsbridgeIndexerCore\Indexer\GenericIndexerHandlerFactory::class);
         $factory->expects(self::exactly(2))->method('create')->with(['entityName' => 'product'])->willReturn($indexer);
-        $stores = $this->createMock(\Divante\VsbridgeIndexerCore\Indexer\StoreManager::class);
+        $stores = $this->createStub(\Divante\VsbridgeIndexerCore\Indexer\StoreManager::class);
         $stores->method('getStores')->willReturn([$this->store()]);
-        $rebuild = $this->createMock(\Divante\VsbridgeIndexerCore\Indexer\RebuildActionInterface::class);
+        $rebuild = $this->createStub(\Divante\VsbridgeIndexerCore\Indexer\RebuildActionInterface::class);
         $rebuild->method('rebuild')->willReturn(new \ArrayIterator());
         $pool = $this->createMock(\Divante\VsbridgeIndexerCore\Indexer\RebuildActionPool::class);
-        $pool->method('getAction')->with('product')->willReturn($rebuild);
+        $pool->expects(self::once())->method('getAction')->with('product')->willReturn($rebuild);
         $events = $this->createMock(\Magento\Framework\Event\ManagerInterface::class);
         $events->expects(self::once())->method('dispatch')->with(
             \Divante\VsbridgeIndexerCore\Api\EventInterface::VSBRIDGE_INDEXER_ACTION_EXECUTE_AFTER,

@@ -9,6 +9,7 @@ use Divante\VsbridgeIndexerCore\Index\IndexSettings;
 use Divante\VsbridgeIndexerCore\Index\Indices\ConfigResolver;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Magento\Framework\Intl\DateTimeFactory;
 
@@ -47,14 +48,12 @@ class IndexSettingsTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
+        $this->storeManagerMock = $this->createStub(StoreManagerInterface::class);
 
-        $this->storeMock = $this->getMockBuilder(Store::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeMock = $this->createStub(Store::class);
 
-        $this->indicesSettingsMock = $this->createMock(IndicesSettings::class);
-        $this->configResolver = $this->createMock(ConfigResolver::class);
+        $this->indicesSettingsMock = $this->createStub(IndicesSettings::class);
+        $this->configResolver = $this->createStub(ConfigResolver::class);
 
         $this->esIndexSettings = new IndexSettings(
             $this->storeManagerMock,
@@ -66,9 +65,8 @@ class IndexSettingsTest extends TestCase
 
     /**
      * @param string $storeCode
-     *
-     * @dataProvider provideStores
      */
+    #[DataProvider('provideStores')]
     public function testGetIndexAlias(string $identifier, string $storeCode)
     {
         $indexPrefix = 'vuestorefront';
@@ -109,7 +107,7 @@ class IndexSettingsTest extends TestCase
         $this->storeManagerMock->method('getDefaultStoreView')->willReturn($this->storeMock);
         $this->storeMock->method('getId')->willReturn(1);
         self::assertSame('catalog_product', $this->esIndexSettings->getIndexAlias('product', $this->storeMock));
-        $otherStore = $this->createMock(\Magento\Store\Api\Data\StoreInterface::class);
+        $otherStore = $this->createStub(\Magento\Store\Api\Data\StoreInterface::class);
         $otherStore->method('getId')->willReturn(2);
         self::assertSame('catalog_2_product', $this->esIndexSettings->getIndexAlias('product', $otherStore));
     }

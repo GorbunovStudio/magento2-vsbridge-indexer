@@ -22,7 +22,7 @@ interface EavAttributesInterface
      * @return array
      * @throws \Exception
      */
-    public function loadAttributesData($storeId, array $entityIds, array $requiredAttributes = null);
+    public function loadAttributesData($storeId, array $entityIds, ?array $requiredAttributes = null);
 
     /**
      * @param \Magento\Eav\Model\Entity\Attribute $attribute
@@ -30,5 +30,5 @@ interface EavAttributesInterface
      *
      * @return bool
      */
-    public function canIndexAttribute(\Magento\Eav\Model\Entity\Attribute $attribute, array $allowedAttributes = null);
+    public function canIndexAttribute(\Magento\Eav\Model\Entity\Attribute $attribute, ?array $allowedAttributes = null);
 }

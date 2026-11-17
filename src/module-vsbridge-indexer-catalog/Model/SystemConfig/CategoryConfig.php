@@ -189,7 +189,7 @@ class CategoryConfig implements CategoryConfigInterface
      *
      * @return string|null
      */
-    private function getConfigParam(string $configField, int $storeId = null)
+    private function getConfigParam(string $configField, ?int $storeId = null)
     {
         $key = $configField . (string) $storeId;
 

@@ -23,6 +23,7 @@ use Divante\VsbridgeIndexerCore\Logger\IndexerLogger;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Indexer\SaveHandler\Batch;
 use Magento\Store\Api\Data\StoreInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -33,7 +34,7 @@ class DeletedCategoryRowsTest extends TestCase
     /** Surviving catalog_category_entity rows after a deletion: ID => path. */
     private const CATALOG = [2 => '1/2', 3 => '1/2/3', 4 => '1/2/4'];
 
-    /** @dataProvider changelogBatches */
+    #[DataProvider('changelogBatches')]
     public function testChangelogBatchExportsSurvivorsAndRemovesDeletedDocuments(array $ids, array $exported): void
     {
         $pageFilters = [];

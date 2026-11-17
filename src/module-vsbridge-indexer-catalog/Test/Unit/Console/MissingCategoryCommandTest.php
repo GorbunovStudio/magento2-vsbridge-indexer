@@ -112,7 +112,7 @@ class MissingCategoryCommandTest extends TestCase
         $pool = $this->createMock(RebuildActionPool::class);
         $pool->method('getAction')->with('category')->willReturn(new Category($resource));
 
-        $store = $this->createMock(StoreInterface::class);
+        $store = $this->createStub(StoreInterface::class);
         $store->method('getId')->willReturn(3);
         $store->method('getName')->willReturn('Test store');
         $stores = $this->createMock(StoreManager::class);
@@ -139,8 +139,8 @@ class MissingCategoryCommandTest extends TestCase
         $providers = $this->createMock(DataProviderResolverInterface::class);
         $providers->method('getDataProviders')->willReturn([]);
         $handler = new GenericIndexerHandler(
-            $providers, $this->createMock(BulkLoggerInterface::class), new IndexerLogger('test'),
-            $operations, new Batch(), $this->createMock(TransactionKeyInterface::class), 'category'
+            $providers, $this->createStub(BulkLoggerInterface::class), new IndexerLogger('test'),
+            $operations, new Batch(), $this->createStub(TransactionKeyInterface::class), 'category'
         );
         $handlerFactory = $this->createMock(GenericIndexerHandlerFactory::class);
         $handlerFactory->method('create')->with(['entityName' => 'category'])->willReturn($handler);
@@ -167,18 +167,18 @@ class MissingCategoryCommandTest extends TestCase
         $indexer->method('getTitle')->willReturn('Categories');
 
         $storeManager = $this->createMock(StoreManagerInterface::class);
-        $storeManager->method('getStore')->with('3')->willReturn($store);
-        $objects = $this->createMock(ObjectManagerInterface::class);
+        $storeManager->expects(self::once())->method('getStore')->with('3')->willReturn($store);
+        $objects = $this->createStub(ObjectManagerInterface::class);
         $objects->method('get')->willReturnMap([
             [StoreManagerInterface::class, $storeManager],
             [StoreManager::class, $stores],
             [CategoryEntityValidator::class, new CategoryEntityValidator($validatorResource)],
         ]);
         $command = $this->getMockBuilder(SingleEntityIndexCommand::class)
-            ->setConstructorArgs([$this->createMock(ObjectManagerFactory::class), self::configuredValidators()])
+            ->setConstructorArgs([$this->createStub(ObjectManagerFactory::class), self::configuredValidators()])
             ->onlyMethods(['getObjectManager', 'getAllIndexers'])->getMock();
         $command->method('getObjectManager')->willReturn($objects);
-        $command->method('getAllIndexers')->willReturn([$indexer]);
+        $command->expects(self::once())->method('getAllIndexers')->willReturn([$indexer]);
         $application = new Application();
         $application->setAutoExit(false);
         $application->add($command);
