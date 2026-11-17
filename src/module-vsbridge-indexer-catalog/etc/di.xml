@@ -78,6 +78,14 @@
         </arguments>
     </type>
 
+    <type name="Divante\VsbridgeIndexerCore\Console\Command\SingleEntityIndexCommand">
+        <arguments>
+            <argument name="entityValidators" xsi:type="array">
+                <item name="vsbridge_category_indexer" xsi:type="string">Divante\VsbridgeIndexerCatalog\Model\Indexer\CategoryEntityValidator</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Framework\Mview\ViewInterface">
         <plugin name="updateMviewSubscriptions" type="Divante\VsbridgeIndexerCatalog\Plugin\Mview\ViewPlugin"/>
     </type>

@@ -4,7 +4,7 @@ A partial category export whose IDs do not exist currently becomes a full export
 
 ## What Changes
 
-- Reject a nonempty category selection when parent/category resolution returns no eligible IDs, with an actionable error propagated through the single-entity command before document writes and the success event.
+- Export no categories for a nonempty selection whose parent/category resolution returns no eligible IDs, so row indexing still removes deleted categories and completes. Reject a missing category requested through the single-entity command with an actionable error before indexing, document writes, cleanup, and the success event.
 - Preserve intentional full exports, existing-category parent expansion, and the current mixed-selection behavior of exporting found categories and their parents.
 - Build each cache invalidation URL from its current batch, preserving ordering, tag rules, disabled batching, endpoint, and HTTP error handling.
 - Update `SingleEntityIndexCommand` and `ResetEsIndexCommand` method signatures for Symfony Console 7; verify all three commands load and register, retaining their existing behavior and exit codes.
@@ -23,7 +23,7 @@ None. `openspec/specs/` is empty. The completed, unarchived `migrate-to-opensear
 
 ## Impact
 
-Production files also include core `Console/Command/SingleEntityIndexCommand.php` and `ResetEsIndexCommand.php` for the user-requested Console 7 compatibility follow-up. Primary defect-fix files are catalog `Model/Indexer/Action/Category.php` and core `Cache/Processor.php`. Tests will exercise the existing core row action, handler consumption, and console failure path; change those callers only if necessary for propagation. The test bootstrap/configuration may need small additions for catalog discovery and generated Magento factories. No dependency additions or changes in external repositories are planned.
+Production files also include core `Console/Command/SingleEntityIndexCommand.php` and `ResetEsIndexCommand.php` for the user-requested Console 7 compatibility follow-up. Primary defect-fix files are catalog `Model/Indexer/Action/Category.php` and core `Cache/Processor.php`. The single-entity check adds core `Api/SingleEntityValidatorInterface.php`, an `entityValidators` argument on `SingleEntityIndexCommand`, and catalog `Model/Indexer/CategoryEntityValidator.php` registered in catalog `etc/di.xml`. Tests will exercise the existing core row action, handler consumption, and console failure path; change those callers only if necessary for propagation. The test bootstrap/configuration may need small additions for catalog discovery and generated Magento factories. No dependency additions or changes in external repositories are planned.
 
 ## Non-goals
 

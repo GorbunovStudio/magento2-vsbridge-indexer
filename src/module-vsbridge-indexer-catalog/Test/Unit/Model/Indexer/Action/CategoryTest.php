@@ -4,7 +4,6 @@ namespace Divante\VsbridgeIndexerCatalog\Test\Unit\Model\Indexer\Action;
 
 use Divante\VsbridgeIndexerCatalog\Model\Indexer\Action\Category;
 use Divante\VsbridgeIndexerCatalog\Model\ResourceModel\Category as ResourceCategory;
-use Magento\Framework\Exception\NoSuchEntityException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -42,18 +41,21 @@ class CategoryTest extends TestCase
     }
 
     #[DataProvider('missingSelections')]
-    public function testUnresolvedPartialSelectionFailsBeforePageQuery(array $ids): void
+    public function testUnresolvedPartialSelectionExportsNothingWithoutPageQuery(array $ids): void
     {
         $resource = $this->createMock(ResourceCategory::class);
         $resource->expects(self::once())->method('getParentIds')->with($ids)->willReturn([]);
         $resource->expects(self::never())->method('getCategories');
-        $this->expectException(NoSuchEntityException::class);
-        $this->expectExceptionMessage(implode(', ', $ids));
-        iterator_to_array((new Category($resource))->rebuild(3, $ids));
+
+        self::assertSame([], iterator_to_array((new Category($resource))->rebuild(3, $ids)));
     }
 
     public static function missingSelections(): array
     {
-        return [[[2147483647]], [[2147483646, 2147483647]]];
+        return [
+            'single deleted category' => [[2147483647]],
+            'several deleted categories' => [[2147483646, 2147483647]],
+            'tree root with deleted unassigned root and child' => [[1, 48, 49]],
+        ];
     }
 }
