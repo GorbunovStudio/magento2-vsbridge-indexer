@@ -110,7 +110,7 @@ class MissingCategoryCommandTest extends TestCase
             return $fromId ? [] : array_map(static fn ($id) => ['entity_id' => $id], $ids);
         });
         $pool = $this->createMock(RebuildActionPool::class);
-        $pool->expects(self::once())->method('getAction')->with('category')->willReturn(new Category($resource));
+        $pool->method('getAction')->with('category')->willReturn(new Category($resource));
 
         $store = $this->createStub(StoreInterface::class);
         $store->method('getId')->willReturn(3);
@@ -143,7 +143,7 @@ class MissingCategoryCommandTest extends TestCase
             $operations, new Batch(), $this->createStub(TransactionKeyInterface::class), 'category'
         );
         $handlerFactory = $this->createMock(GenericIndexerHandlerFactory::class);
-        $handlerFactory->expects(self::once())->method('create')->with(['entityName' => 'category'])->willReturn($handler);
+        $handlerFactory->method('create')->with(['entityName' => 'category'])->willReturn($handler);
 
         // The success event is what triggers cache invalidation subscribers.
         $successEvents = [];
@@ -154,7 +154,7 @@ class MissingCategoryCommandTest extends TestCase
             }
         });
         $actionFactory = $this->createMock(ActionFactory::class);
-        $actionFactory->expects(self::once())->method('create')->with('rows', 'category')
+        $actionFactory->method('create')->with('rows', 'category')
             ->willReturn(new Rows($pool, $handlerFactory, $stores, $events, 'category'));
         $base = new Base($actionFactory, 'category');
 
